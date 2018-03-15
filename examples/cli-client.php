@@ -70,8 +70,6 @@ if (isset($subscriptionOfferId)) {
 // Transaction data
 $c2pClient->setOrderID(date("Y-m-d-H.i.s"));
 
-$paymentType = Connect2PayClient::_PAYMENT_TYPE_CREDITCARD;
-
 if (isset($paymentType)) {
   $c2pClient->setPaymentType($paymentType);
 }
