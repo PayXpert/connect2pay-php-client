@@ -1,0 +1,29 @@
+{
+  "name": "payxpert/connect2pay",
+  "description": "Payxpert Payment Page System client library",
+  "license": "Apache License 2.0",
+  "keywords": [
+    "payment",
+    "credit card",
+    "bank transfer",
+    "SEPA direct debit"
+  ],
+  "homepage": "https://github.com/PayXpert/connect2pay-php-client",
+  "autoload": {
+    "psr-4": {
+      "PayXpert\\Connect2Pay\\": "src",
+      "PayXpert\\Connect2Pay\\Tests\\": "tests"
+    }
+  },
+  "require": {
+    "php": ">= 5.3",
+    "ext-curl": "*",
+    "ext-openssl": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.7"
+  },
+  "scripts": {
+    "tests": "phpunit tests/"
+  }
+}

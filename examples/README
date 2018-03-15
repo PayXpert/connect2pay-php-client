@@ -1,0 +1,10 @@
+How to use
+----------
+
+Copy the file configuration-default.php as configuration.php and set the the right values in it.
+
+To create a new transaction:
+$ php cli-client.php
+
+This will output the syntax of the command to get the merchant status of the transaction.
+It will also output the URL for the customer access. Follow the URL and complete the transaction.   
