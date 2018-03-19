@@ -1,31 +1,22 @@
 <?php
-
 require_once(dirname(__FILE__) . "/../src/Connect2PayClient.php");
-require_once(dirname(__FILE__) . "/configuration-default.php");
+require_once(dirname(__FILE__) . "/configuration.php");
 
 use PayXpert\Connect2Pay\Connect2PayClient;
 use PayXpert\Connect2Pay\CartProduct;
 
 $c2pClient = new Connect2PayClient($connect2pay, $originator, $password);
 
-/*
- *  Use useProxy() in the case your server has an outgoing proxy
- */
-
 if (isset($proxy_host) && isset($proxy_port)) {
   $c2pClient->useProxy($proxy_host, $proxy_port);
 }
 
-$amount = 1216;
-$defaultCurrency = "EUR";
+if (isset($validateSSLCertificate) && $validateSSLCertificate == true) {
+  $c2pClient->forceSSLValidation();
+}
 
-/*
- *  Do currency conversion if needed, in this example we check
- *  if Todito Cash is set as paymentType, and if yes, convert
- *  EUR into MXN.
- */
-
-$paymentType = Connect2PayClient::_PAYMENT_TYPE_TODITOCASH;
+// Do currency conversion if needed
+$amount = (isset($defaultAmount)) ? $defaultAmount : 1216;
 $currency = (isset($defaultCurrency)) ? $defaultCurrency : "EUR";
 if (isset($paymentType) && $currency != 'MXN' && $paymentType == Connect2PayClient::_PAYMENT_TYPE_TODITOCASH) {
   $currency = 'MXN';
@@ -38,12 +29,9 @@ if (isset($paymentType) && $currency != 'MXN' && $paymentType == Connect2PayClie
   } else {
     echo "Converted amount from " . ($amount / 100) . " " . $c2pClient->getCurrencyHelper()->getCurrencySymbol("EUR")
     . " to " . ($convertedAmount / 100) . " " . $c2pClient->getCurrencyHelper()->getCurrencySymbol($currency) . ".\n";
+    $amount = $convertedAmount;
   }
 }
-
-/*
- *  Sets subscription special parameters
- */
 
 if (isset($subscriptionOfferId)) {
   $c2pClient->setOfferID($subscriptionOfferId);
