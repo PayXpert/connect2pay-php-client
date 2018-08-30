@@ -41,7 +41,7 @@ namespace PayXpert\Connect2Pay;
  * PHP CURL extension
  * PHP OpenSSL extension
  *
- * @version 2.0.7
+ * @version @@VERSION@@
  *
  */
 class Connect2PayClient {
@@ -52,12 +52,16 @@ class Connect2PayClient {
   const _PAYMENT_TYPE_TODITOCASH = 'ToditoCash';
   const _PAYMENT_TYPE_BANKTRANSFER = 'BankTransfer';
   const _PAYMENT_TYPE_DIRECTDEBIT = 'DirectDebit';
+  const _PAYMENT_TYPE_WECHAT = 'WeChat';
+  const _PAYMENT_TYPE_LINE = 'Line';
 
   /**
    * Payment providers constants
    */
-  const _PAYMENT_PROVIDER_SOFORT = 'Sofort';
-  const _PAYMENT_PROVIDER_PRZELEWY24 = 'Przelewy24';
+  const _PAYMENT_PROVIDER_SOFORT = 'sofort';
+  const _PAYMENT_PROVIDER_PRZELEWY24 = 'przelewy24';
+  const _PAYMENT_PROVIDER_IDEAL = 'ideal';
+  const _PAYMENT_PROVIDER_GIROPAY = 'giropay';
 
   /**
    * Operation types constants
@@ -898,8 +902,6 @@ class Connect2PayClient {
           $this->clientErrorMessage = $this->returnMessage;
         }
       }
-    } else {
-      $this->clientErrorMessage = 'The transaction is not valid.';
     }
 
     return false;
@@ -4098,7 +4100,9 @@ class C2PValidate {
     return ((string) $payment == Connect2PayClient::_PAYMENT_TYPE_CREDITCARD ||
          (string) $payment == Connect2PayClient::_PAYMENT_TYPE_TODITOCASH ||
          (string) $payment == Connect2PayClient::_PAYMENT_TYPE_BANKTRANSFER ||
-         (string) $payment == Connect2PayClient::_PAYMENT_TYPE_DIRECTDEBIT);
+         (string) $payment == Connect2PayClient::_PAYMENT_TYPE_DIRECTDEBIT ||
+         (string) $payment == Connect2PayClient::_PAYMENT_TYPE_WECHAT ||
+         (string) $payment == Connect2PayClient::_PAYMENT_TYPE_LINE);
   }
 
   /**
@@ -4110,7 +4114,9 @@ class C2PValidate {
    */
   static public function isProvider($provider) {
     return ((string) $provider == Connect2PayClient::_PAYMENT_PROVIDER_SOFORT ||
-         (string) $provider == Connect2PayClient::_PAYMENT_PROVIDER_PRZELEWY24);
+         (string) $provider == Connect2PayClient::_PAYMENT_PROVIDER_PRZELEWY24 ||
+         (string) $provider == Connect2PayClient::_PAYMENT_PROVIDER_IDEAL      ||
+         (string) $provider == Connect2PayClient::_PAYMENT_PROVIDER_GIROPAY);
   }
 
   /**
