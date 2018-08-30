@@ -41,7 +41,7 @@ namespace PayXpert\Connect2Pay;
  * PHP CURL extension
  * PHP OpenSSL extension
  *
- * @version @@VERSION@@
+ * @version 2.8.0
  *
  */
 class Connect2PayClient {
