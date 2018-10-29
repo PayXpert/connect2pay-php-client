@@ -4,8 +4,6 @@ namespace PayXpert\Connect2Pay\Tests;
 
 use PayXpert\Connect2Pay\Connect2PayClient;
 use PayXpert\Connect2Pay\DirectDebitPaymentMeanInfo;
-use PayXpert\Connect2Pay\BankAccount;
-use PayXpert\Connect2Pay\SepaMandate;
 use PayXpert\Connect2Pay\PaymentStatus;
 
 /**
@@ -34,7 +32,7 @@ final class PaymentStatusTest extends CommonTest {
 
     $this->assertNotNull($lastInitialTransaction);
     $this->assertEquals("1v0masio6c-1nrr", $lastInitialTransaction->getTransactionID());
-    $this->assertEquals(Connect2PayClient::_PAYMENT_TYPE_DIRECTDEBIT, $lastInitialTransaction->getPaymentType());
+    $this->assertEquals(Connect2PayClient::PAYMENT_METHOD_DIRECTDEBIT, $lastInitialTransaction->getPaymentMethod());
     $this->assertEquals("submission", $lastInitialTransaction->getOperation());
 
     $paymentMeanInfo = $lastInitialTransaction->getPaymentMeanInfo();

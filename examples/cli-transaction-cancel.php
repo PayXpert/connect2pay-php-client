@@ -27,4 +27,3 @@ if ($status != null && $status->getCode() != null) {
 } else {
   echo "Error: " . $c2pClient->getClientErrorMessage() . "\n";
 }
-?>

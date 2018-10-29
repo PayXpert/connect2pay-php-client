@@ -30,7 +30,10 @@ $c2pClient = new Connect2PayClient($connect2pay, $originator, $password);
 
 // Setup new payment parameters
 $c2pClient->setOrderID($orderid);
-$c2pClient->setPaymentType((isset($paymentType)) ? $paymentType : Connect2PayClient::_PAYMENT_TYPE_CREDITCARD);
+$c2pClient->setPaymentMethod((isset($paymentMethod)) ? $paymentMethod : Connect2PayClient::PAYMENT_METHOD_CREDITCARD);
+if (isset($paymentNetwork)) {
+  $c2pClient->setPaymentNetwork($paymentNetwork);
+}
 $c2pClient->setPaymentMode(Connect2PayClient::_PAYMENT_MODE_SINGLE);
 $c2pClient->setShopperID($shopperid);
 $c2pClient->setShippingType(Connect2PayClient::_SHIPPING_TYPE_VIRTUAL);
@@ -61,8 +64,8 @@ $c2pClient->setMerchantNotificationLang("en");
 
 // Validate our information
 if ($c2pClient->validate()) {
-  // Create the payment transaction on the payment page
-  if ($c2pClient->prepareTransaction()) {
+  // Create the payment on the payment page
+  if ($c2pClient->preparePayment()) {
     // We can save in session the token info returned by the payment page (could
     // be used later when the customer will return from the payment page)
     $_SESSION['merchantToken'] = $c2pClient->getMerchantToken();

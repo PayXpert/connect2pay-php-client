@@ -23,8 +23,8 @@ final class Connect2PayClientTest extends CommonTest {
     $this->c2pClient->setOrderID(date("Y-m-d-H.i.s"));
     $this->c2pClient->setCurrency("EUR");
     $this->c2pClient->setAmount(1216);
-    $this->c2pClient->setShippingType(Connect2PayClient::_SHIPPING_TYPE_VIRTUAL);
-    $this->c2pClient->setPaymentMode(Connect2PayClient::_PAYMENT_MODE_SINGLE);
+    $this->c2pClient->setShippingType(Connect2PayClient::SHIPPING_TYPE_VIRTUAL);
+    $this->c2pClient->setPaymentMode(Connect2PayClient::PAYMENT_MODE_SINGLE);
 
     $this->assertTrue($this->c2pClient->validate());
   }
@@ -75,7 +75,7 @@ final class Connect2PayClientTest extends CommonTest {
     $this->c2pClient->setOrderID(date("Y-m-d-H.i.s"));
     $this->c2pClient->setCurrency("EUR");
     $this->c2pClient->setAmount(1216);
-    $this->c2pClient->setShippingType(Connect2PayClient::_SHIPPING_TYPE_VIRTUAL);
-    $this->c2pClient->setPaymentMode(Connect2PayClient::_PAYMENT_MODE_SINGLE);
+    $this->c2pClient->setShippingType(Connect2PayClient::SHIPPING_TYPE_VIRTUAL);
+    $this->c2pClient->setPaymentMode(Connect2PayClient::PAYMENT_MODE_SINGLE);
   }
 }

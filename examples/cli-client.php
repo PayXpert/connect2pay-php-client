@@ -11,27 +11,8 @@ if (isset($proxy_host) && isset($proxy_port)) {
   $c2pClient->useProxy($proxy_host, $proxy_port);
 }
 
-if (isset($validateSSLCertificate) && $validateSSLCertificate == true) {
-  $c2pClient->forceSSLValidation();
-}
-
-// Do currency conversion if needed
 $amount = (isset($defaultAmount)) ? $defaultAmount : 1216;
 $currency = (isset($defaultCurrency)) ? $defaultCurrency : "EUR";
-if (isset($paymentType) && $currency != 'MXN' && $paymentType == Connect2PayClient::_PAYMENT_TYPE_TODITOCASH) {
-  $currency = 'MXN';
-  $convertedAmount = $c2pClient->getCurrencyHelper()->convert($amount, "EUR", $currency);
-
-  if ($convertedAmount == null) {
-    // There should be a "Plan B" here
-    echo "Currency conversion error. Aborting.\n";
-    exit(1);
-  } else {
-    echo "Converted amount from " . ($amount / 100) . " " . $c2pClient->getCurrencyHelper()->getCurrencySymbol("EUR")
-    . " to " . ($convertedAmount / 100) . " " . $c2pClient->getCurrencyHelper()->getCurrencySymbol($currency) . ".\n";
-    $amount = $convertedAmount;
-  }
-}
 
 if (isset($subscriptionOfferId)) {
   $c2pClient->setOfferID($subscriptionOfferId);
@@ -58,14 +39,14 @@ if (isset($subscriptionOfferId)) {
 // Transaction data
 $c2pClient->setOrderID(date("Y-m-d-H.i.s"));
 
-if (isset($paymentType)) {
-  $c2pClient->setPaymentType($paymentType);
+if (isset($paymentMethod)) {
+  $c2pClient->setPaymentMethod($paymentMethod);
 }
 if (isset($operation)) {
   $c2pClient->setOperation($operation);
 }
-if (isset($provider)) {
-  $c2pClient->setProvider($provider);
+if (isset($paymentNetwork)) {
+  $c2pClient->setPaymentNetwork($paymentNetwork);
 }
 $c2pClient->setPaymentMode(Connect2PayClient::_PAYMENT_MODE_SINGLE);
 $c2pClient->setShopperID("1234567");
@@ -100,7 +81,6 @@ $c2pClient->setShipToState("New York");
 $c2pClient->setShipToCity("New York");
 $c2pClient->setShipToCountryCode("US");
 $c2pClient->setShipToPhone("+47123456789");
-$c2pClient->setOrderTotalWithoutShipping($amount - 50);
 
 if (isset($addCartProducts) && $addCartProducts) {
   $product = new CartProduct();
@@ -139,18 +119,13 @@ if (isset($timeOut)) {
   $c2pClient->setTimeOut($timeOut);
 }
 
-if ($c2pClient->validate()) {
-  if ($c2pClient->preparePayment()) {
-    echo "Result code:" . $c2pClient->getReturnCode() . "\n";
-    echo "Result message:" . $c2pClient->getReturnMessage() . "\n";
-    echo "Get merchant status by running: php cli-payment-status.php " . $c2pClient->getMerchantToken() . "\n";
-    echo "Customer access is at: " . $c2pClient->getCustomerRedirectURL() . "\n";
-    echo "To test the decryption of status posted when the customer is redirected, use the following command:\n";
-    echo "php cli-encrypted-status.php " . $c2pClient->getMerchantToken() . ' ${data_field_from_the_form}' . "\n";
-  } else {
-    echo "Result code:" . $c2pClient->getReturnCode() . "\n";
-    echo "Preparation error occured: " . $c2pClient->getClientErrorMessage() . "\n";
-  }
+if ($c2pClient->preparePayment()) {
+  echo "Result code:" . $c2pClient->getReturnCode() . "\n";
+  echo "Result message:" . $c2pClient->getReturnMessage() . "\n";
+  echo "Get merchant status by running: php cli-payment-status.php " . $c2pClient->getMerchantToken() . "\n";
+  echo "Customer access is at: " . $c2pClient->getCustomerRedirectURL() . "\n";
+  echo "To test the decryption of status posted when the customer is redirected, use the following command:\n";
+  echo "php cli-encrypted-status.php " . $c2pClient->getMerchantToken() . ' ${data_field_from_the_form}' . "\n";
 } else {
-  echo "Validation error occured: " . $c2pClient->getClientErrorMessage() . "\n";
+  echo "Preparation error occured: " . $c2pClient->getClientErrorMessage() . "\n";
 }

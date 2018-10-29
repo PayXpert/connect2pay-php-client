@@ -6,7 +6,7 @@ use PayXpert\Connect2Pay\Connect2PayClient;
 
 // Merchant token should be passed as the first parameter of this script
 if ($argc < 2) {
-  echo "Usage: php merchant-status.php merchantToken\n";
+  echo "Usage: php cli-payment-status.php merchantToken\n";
   exit(1);
 }
 
@@ -29,7 +29,7 @@ if ($status != null && $status->getErrorCode() != null) {
   if ($transactionsCount > 0) {
     echo "Number of transactions associated with this payment: " . $transactionsCount . "\n";
 
-    $transaction = $status->getLastTransactionAttempt();
+    $transaction = $status->getLastInitialTransactionAttempt();
 
     if ($transaction !== null) {
       echo "~~\n";
@@ -37,7 +37,10 @@ if ($status != null && $status->getErrorCode() != null) {
       echo "~~\n";
 
       echo "Transaction ID: " . $transaction->getTransactionID() . "\n";
-      echo "Payment type: " . $transaction->getPaymentType() . "\n";
+      echo "Payment method: " . $transaction->getPaymentMethod() . "\n";
+      if ($transaction->getPaymentNetwork()) {
+        echo "Payment network: " . $transaction->getPaymentNetwork() . "\n";
+      }
       echo "Operation: " . $transaction->getOperation() . "\n";
       echo "Amount: " . number_format($transaction->getAmount() / 100, 2) . " " . $status->getCurrency() . "\n";
       echo "Result code: " . $transaction->getResultCode() . "\n";
@@ -53,8 +56,8 @@ if ($status != null && $status->getErrorCode() != null) {
       }
       $paymentMeanInfo = $transaction->getPaymentMeanInfo();
       if ($paymentMeanInfo !== null) {
-        switch ($transaction->getPaymentType()) {
-          case Connect2PayClient::_PAYMENT_TYPE_CREDITCARD:
+        switch ($transaction->getPaymentMethod()) {
+          case Connect2PayClient::PAYMENT_METHOD_CREDITCARD:
             if (!empty($paymentMeanInfo->getCardNumber())) {
               echo "Payment Mean Information:\n";
               echo "* Card Holder Name: " . $paymentMeanInfo->getCardHolderName() . "\n";
@@ -70,14 +73,14 @@ if ($status != null && $status->getErrorCode() != null) {
             }
 
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_TODITOCASH:
+          case Connect2PayClient::PAYMENT_METHOD_TODITOCASH:
             if (!empty($paymentMeanInfo->getCardNumber())) {
               echo "Payment Mean Information:\n";
               echo "* Card Number: " . $paymentMeanInfo->getCardNumber() . "\n";
             }
 
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_BANKTRANSFER:
+          case Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER:
             $sender = $paymentMeanInfo->getSender();
             $recipient = $paymentMeanInfo->getRecipient();
 
@@ -101,7 +104,7 @@ if ($status != null && $status->getErrorCode() != null) {
             }
 
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_DIRECTDEBIT:
+          case Connect2PayClient::PAYMENT_METHOD_DIRECTDEBIT:
             $account = $paymentMeanInfo->getBankAccount();
 
             if ($account !== null) {
@@ -192,7 +195,7 @@ if ($status != null && $status->getErrorCode() != null) {
             echo "Date: " . $attemptDate->format("Y-m-d H:i:s T") . "\n";
           }
 
-          echo "Payment type: " . $attempt->getPaymentType() . "\n";
+          echo "Payment type: " . $attempt->getPaymentMethod() . "\n";
           echo "Operation: " . $attempt->getOperation() . "\n";
           echo "Amount: " . number_format($attempt->getAmount() / 100, 2) . " " . $status->getCurrency() . "\n";
           echo "Result code: " . $attempt->getResultCode() . "\n";
@@ -202,9 +205,8 @@ if ($status != null && $status->getErrorCode() != null) {
       }
     }
   } else {
-    echo "No transaction attempts found for the payment.\n";
+    echo "No transaction attempt found for the payment.\n";
   }
 } else {
   echo "Error: " . $c2pClient->getClientErrorMessage() . "\n";
 }
-?>

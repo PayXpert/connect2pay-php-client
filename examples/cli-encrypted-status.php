@@ -26,7 +26,10 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
 
     if ($transaction !== null) {
       echo "Number of transaction attempts: " . count($status->getTransactions()) . "\n";
-      echo "Payment type: " . $transaction->getPaymentType() . "\n";
+      echo "Payment Method: " . $transaction->getPaymentMethod() . "\n";
+      if ($transaction->getPaymentNetwork()) {
+        echo "Payment network: " . $transaction->getPaymentNetwork() . "\n";
+      }
       echo "Operation: " . $transaction->getOperation() . "\n";
 
       echo "Error message: " . $transaction->getResultMessage() . "\n";
@@ -42,8 +45,8 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
       }
       $paymentMeanInfo = $transaction->getPaymentMeanInfo();
       if ($paymentMeanInfo !== null) {
-        switch ($transaction->getPaymentType()) {
-          case Connect2PayClient::_PAYMENT_TYPE_CREDITCARD:
+        switch ($transaction->getPaymentMethod()) {
+          case Connect2PayClient::PAYMENT_METHOD_CREDITCARD:
             if (!empty($paymentMeanInfo->getCardNumber())) {
               echo "Payment Mean Information:\n";
               echo "* Card Holder Name: " . $paymentMeanInfo->getCardHolderName() . "\n";
@@ -57,13 +60,13 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
               }
             }
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_TODITOCASH:
+          case Connect2PayClient::PAYMENT_METHOD_TODITOCASH:
             if (!empty($paymentMeanInfo->getCardNumber())) {
               echo "Payment Mean Information:\n";
               echo "* Card Number: " . $paymentMeanInfo->getCardNumber() . "\n";
             }
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_BANKTRANSFER:
+          case Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER:
             $sender = $paymentMeanInfo->getSender();
             $recipient = $paymentMeanInfo->getRecipient();
             if ($sender !== null) {
@@ -84,7 +87,7 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
               echo ">> Country code: " . $recipient->getCountryCode() . "\n";
             }
             break;
-          case Connect2PayClient::_PAYMENT_TYPE_DIRECTDEBIT:
+          case Connect2PayClient::PAYMENT_METHOD_DIRECTDEBIT:
             $account = $paymentMeanInfo->getBankAccount();
 
             if ($account !== null) {

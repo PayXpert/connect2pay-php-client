@@ -21,14 +21,10 @@ if (isset($proxy_host) && isset($proxy_port)) {
   $c2pClient->useProxy($proxy_host, $proxy_port);
 }
 
-if (isset($validateSSLCertificate) && $validateSSLCertificate == true) {
-  $c2pClient->forceSSLValidation();
-}
-
 $result = $c2pClient->cancelSubscription($subscriptionID, Connect2PayClient::_SUBSCRIPTION_CANCEL_BANK_DENIAL);
 
 if ($result == "200") {
-  echo "Subscription " . $subscriptionID . " cancelled succcessfully: " . $c2pClient->getClientErrorMessage() . "\n";
+  echo "Subscription " . $subscriptionID . " cancelled successfully: " . $c2pClient->getClientErrorMessage() . "\n";
 } else {
-  echo "Error cancelling subscription " . $subscriptionID . ": code " . $result . " with message: " . $c2pClient->getClientErrorMessage() . "\n";
+  echo "Error canceling subscription " . $subscriptionID . ": code " . $result . " with message: " . $c2pClient->getClientErrorMessage() . "\n";
 }

@@ -1,15 +1,16 @@
 <?php
 use PayXpert\Connect2Pay\Connect2PayClient;
+use PayXpert\Connect2Pay\WeChatDirectProcessRequest;
 
 # Configuration
 $connect2pay = "https://connect2.payxpert.com/";
 $originator = "000000";
 $password = "gr3atPassw0rd";
 
-// Payment types, operation and Provider
-//$paymentType = Connect2PayClient::_PAYMENT_TYPE_CREDITCARD;
-//$paymentType = Connect2PayClient::_PAYMENT_TYPE_BANKTRANSFER;
-//$provider = Connect2PayClient::_PAYMENT_PROVIDER_SOFORT;
+// Payment methods, network and operation
+//$paymentMethod = Connect2PayClient::PAYMENT_METHOD_CREDITCARD;
+//$paymentMethod = Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER;
+//$paymentNetwork = Connect2PayClient::PAYMENT_NETWORK_SOFORT;
 //$operation = Connect2PayClient::_OPERATION_TYPE_AUTHORIZE;
 
 // Credit Card specific field
@@ -56,3 +57,7 @@ $shopperEmailAddress = "shopper@example.com";
 // Affiliation fields
 //$affiliateID = 1234567;
 //$campaignName = "Test Campaign";
+
+// WeChat direct specific fields
+//$weChatDirectMode = WeChatDirectProcessRequest::MODE_QUICKPAY;
+//$weChatDirectQuickPayCode = "1234567890";
