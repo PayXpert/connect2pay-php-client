@@ -1,7 +1,7 @@
 {
 	"name" : "payxpert/connect2pay",
 	"description" : "Payxpert Payment Page System client library",
-	"version": "2.9.0",
+	"version" : "2.9.0",
 	"license" : "Apache-2.0",
 	"keywords" : [
 		"payment",
@@ -22,7 +22,7 @@
 		"ext-openssl" : "*"
 	},
 	"require-dev" : {
-		"phpunit/phpunit" : "5.7"
+		"phpunit/phpunit" : "*"
 	},
 	"scripts" : {
 		"tests" : "phpunit tests/"
