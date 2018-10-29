@@ -33,10 +33,10 @@ $c2pClient = new Connect2PayClient($connect2pay, $originator, $password);
 
 // Set all information for the payment
 $c2pClient->setOrderID("ABC-123456");
-$c2pClient->setPaymentType(Connect2PayClient::_PAYMENT_TYPE_CREDITCARD);
-$c2pClient->setPaymentMode(Connect2PayClient::_PAYMENT_MODE_SINGLE);
+$c2pClient->setPaymentMethod(Connect2PayClient::PAYMENT_METHOD_CREDITCARD);
+$c2pClient->setPaymentMode(Connect2PayClient::PAYMENT_MODE_SINGLE);
 $c2pClient->setShopperID("1234567WX");
-$c2pClient->setShippingType(Connect2PayClient::_SHIPPING_TYPE_VIRTUAL);
+$c2pClient->setShippingType(Connect2PayClient::SHIPPING_TYPE_VIRTUAL);
 // To charge €25.99
 $c2pClient->setCurrency("EUR");
 $c2pClient->setAmount(2599);
