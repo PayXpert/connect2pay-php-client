@@ -3,8 +3,9 @@ require_once (dirname(__FILE__) . "/../src/Connect2PayClient.php");
 require_once (dirname(__FILE__) . "/configuration.php");
 require_once (dirname(__FILE__) . "/vendor/autoload.php");
 
+
 use PayXpert\Connect2Pay\Connect2PayClient;
-use PayXpert\Connect2Pay\WeChatDirectProcessRequest;
+use PayXpert\Connect2Pay\AliPayDirectProcessRequest;
 use WebSocket\Client;
 use PayXpert\Connect2Pay\TransactionAttempt;
 
@@ -17,17 +18,17 @@ if (isset($proxy_host) && isset($proxy_port)) {
 $amount = (isset($defaultAmount)) ? $defaultAmount : 1216;
 $currency = (isset($defaultCurrency)) ? $defaultCurrency : "EUR";
 
-$realWeChatMode = (isset($weChatDirectMode)) ? $weChatDirectMode : WeChatDirectProcessRequest::MODE_NATIVE;
+$realAliPayMode = (isset($aliPayDirectMode)) ? $aliPayDirectMode : AliPayDirectProcessRequest::MODE_POS;
 
 // Transaction data
 $c2pClient->setOrderID(date("Y-m-d-H.i.s"));
 
-$c2pClient->setPaymentMethod(Connect2PayClient::PAYMENT_METHOD_WECHAT);
+$c2pClient->setPaymentMethod(Connect2PayClient::PAYMENT_METHOD_ALIPAY);
 $c2pClient->setPaymentMode(Connect2PayClient::PAYMENT_MODE_SINGLE);
 $c2pClient->setShopperID("1234567");
 $c2pClient->setShippingType(Connect2PayClient::SHIPPING_TYPE_VIRTUAL);
 $c2pClient->setAmount($amount);
-$c2pClient->setOrderDescription("Test WeChat purchase.");
+$c2pClient->setOrderDescription("Test AliPay purchase.");
 $c2pClient->setCurrency($currency);
 $c2pClient->setShopperFirstName("John");
 $c2pClient->setShopperLastName("Doe");
@@ -61,22 +62,23 @@ if ($c2pClient->preparePayment()) {
   echo "Payment prepare returned code " . $resultCode . "\n";
 
   if ($resultCode == "200") {
-    echo "Processing WeChat direct transaction...\n";
+    echo "Processing AliPay direct transaction...\n";
 
-    $request = new WeChatDirectProcessRequest();
-    $request->mode = $realWeChatMode;
+    $request = new AliPayDirectProcessRequest();
+    $request->mode = $realAliPayMode;
 
-    if ($request->mode == WeChatDirectProcessRequest::MODE_QUICKPAY) {
-      if (isset($weChatDirectQuickPayCode)) {
-        $request->setQuickPayCode($weChatDirectQuickPayCode);
+    if ($request->mode == AliPayDirectProcessRequest::MODE_APP) {
+      if (isset($buyerIdentityCode) && isset($identityCodeType)) {
+        $request->setBuyerIdentityCode($buyerIdentityCode);
+        $request->setIdentityCodeType($identityCodeType);
       } else {
-        echo "/!\ WeChat QuickPay code not defined\n";
+        echo "/!\ AliPay APP code not defined\n";
       }
     }
 
     $customerToken = $c2pClient->getCustomerToken();
 
-    $response = $c2pClient->directWeChatProcess($customerToken, $request);
+    $response = $c2pClient->directAliPayProcess($customerToken, $request);
 
     if ($response != null) {
       echo "Result code: " . $response->getCode() . "\n";
@@ -84,7 +86,7 @@ if ($c2pClient->preparePayment()) {
       echo "Transaction ID: " . $response->getTransactionID() . "\n";
 
       if ($response->getCode() == "200") {
-        if ($request->mode == WeChatDirectProcessRequest::MODE_NATIVE) {
+        if ($request->mode == AliPayDirectProcessRequest::MODE_POS) {
           echo "QR Code base64: " . $response->getQrCode() . "\n";
           echo "QR Code URL: " . $response->getQrCodeUrl() . "\n";
         } else {

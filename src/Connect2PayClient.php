@@ -41,7 +41,7 @@ namespace PayXpert\Connect2Pay;
  * PHP CURL extension
  * PHP OpenSSL extension
  *
- * @version 2.9.0
+ * @version 2.10.0
  *
  */
 class Connect2PayClient {
@@ -59,6 +59,7 @@ class Connect2PayClient {
   const PAYMENT_METHOD_DIRECTDEBIT = 'DirectDebit';
   const PAYMENT_METHOD_WECHAT = 'WeChat';
   const PAYMENT_METHOD_LINE = 'Line';
+  const PAYMENT_METHOD_ALIPAY = 'AliPay';
 
   /*
    * Legacy payment types
@@ -231,6 +232,9 @@ class Connect2PayClient {
   const LANG_FR = 'fr';
   const LANG_ES = 'es';
   const LANG_IT = 'it';
+  const LANG_DE = 'de';
+  const LANG_ZH_HANT = 'zh_hant';
+
   /**
    *
    * @deprecated Use LANG_EN
@@ -536,8 +540,8 @@ class Connect2PayClient {
       'TRANS_CANCEL' => '/transaction/:transactionID/cancel', /* */
       'TRANS_DOPAY' => '/payment/:customerToken', /* */
       'SUB_CANCEL' => '/subscription/:subscriptionID/cancel', /* */
-      'WECHAT_DIRECT_PROCESS' => '/payment/:customerToken/process/wechat/direct' /*
-                                                                              */
+      'WECHAT_DIRECT_PROCESS' => '/payment/:customerToken/process/wechat/direct', /* */
+      'ALIPAY_DIRECT_PROCESS' => '/payment/:customerToken/process/alipay/direct'
   );
 
   /*
@@ -1519,6 +1523,42 @@ class Connect2PayClient {
   }
 
   /**
+   * Direct AliPay transaction process.
+   * Must be preceded by a payment prepare call.
+   *
+   * @param string $customerToken
+   *          Customer token of the payment returned by the previous prepare
+   *          call
+   * @param AliPayDirectProcessRequest $request
+   *          The AliPayDirectProcessRequest object with call parameters
+   * @return AliPayDirectProcessResponse The AliPayDirectProcessResponse filled
+   *         with values returned from the
+   *         operation or null on failure (in that case call
+   *         getClientErrorMessage())
+   */
+  public function directAliPayProcess($customerToken, $request) {
+    if ($customerToken !== null && $request !== null) {
+      $url = $this->url . str_replace(":customerToken", $customerToken, Connect2PayClient::$API_ROUTES['ALIPAY_DIRECT_PROCESS']);
+
+      $request->setApiVersion($this->getApiVersion());
+
+      $result = $this->doPost($url, json_encode($request), false);
+
+      if ($result != null && is_object($result)) {
+        $apiResponse = AliPayDirectProcessResponse::getFromJson($result);
+
+        return $apiResponse;
+      } else {
+        $this->clientErrorMessage = 'No result received from direct AliPay processing call: ' . $this->clientErrorMessage;
+      }
+    } else {
+      $this->clientErrorMessage = '"customerToken" and "request" must not be null';
+    }
+
+    return null;
+  }
+
+  /**
    * Handle the callback done by the payment page application after
    * a transaction processing.
    * This will populate the status field that can be retrieved by calling
@@ -1880,7 +1920,7 @@ class Connect2PayClient {
   }
 
   public function getShopperLastName() {
-    return (!C2PValidate::isEmpty($this->shopperLastName)) ? $this->shopperLastName : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperLastName)) ? $this->shopperLastName : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperLastName($shopperLastName) {
@@ -1889,7 +1929,7 @@ class Connect2PayClient {
   }
 
   public function getShopperPhone() {
-    return (!C2PValidate::isEmpty($this->shopperPhone)) ? $this->shopperPhone : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperPhone)) ? $this->shopperPhone : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperPhone($shopperPhone) {
@@ -1898,7 +1938,7 @@ class Connect2PayClient {
   }
 
   public function getShopperAddress() {
-    return (!C2PValidate::isEmpty($this->shopperAddress)) ? $this->shopperAddress : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperAddress)) ? $this->shopperAddress : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperAddress($shopperAddress) {
@@ -1907,7 +1947,7 @@ class Connect2PayClient {
   }
 
   public function getShopperState() {
-    return (!C2PValidate::isEmpty($this->shopperState)) ? $this->shopperState : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperState)) ? $this->shopperState : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperState($shopperState) {
@@ -1916,7 +1956,7 @@ class Connect2PayClient {
   }
 
   public function getShopperZipcode() {
-    return (!C2PValidate::isEmpty($this->shopperZipcode)) ? $this->shopperZipcode : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperZipcode)) ? $this->shopperZipcode : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperZipcode($shopperZipcode) {
@@ -1925,7 +1965,7 @@ class Connect2PayClient {
   }
 
   public function getShopperCity() {
-    return (!C2PValidate::isEmpty($this->shopperCity)) ? $this->shopperCity : Connect2PayClient::_UNAVAILABLE;
+    return (!C2PValidate::isEmpty($this->shopperCity)) ? $this->shopperCity : Connect2PayClient::UNAVAILABLE;
   }
 
   public function setShopperCity($shopperCity) {
@@ -1934,7 +1974,7 @@ class Connect2PayClient {
   }
 
   public function getShopperCountryCode() {
-    return (!C2PValidate::isEmpty($this->shopperCountryCode)) ? $this->shopperCountryCode : Connect2PayClient::_UNAVAILABLE_COUNTRY;
+    return (!C2PValidate::isEmpty($this->shopperCountryCode)) ? $this->shopperCountryCode : Connect2PayClient::UNAVAILABLE_COUNTRY;
   }
 
   public function setShopperCountryCode($shopperCountryCode) {
@@ -2151,7 +2191,7 @@ class Connect2PayClient {
   }
 
   public function getPaymentMethod() {
-    return (!C2PValidate::isEmpty($this->paymentMethod)) ? $this->paymentMethod : Connect2PayClient::_PAYMENT_TYPE_CREDITCARD;
+    return (!C2PValidate::isEmpty($this->paymentMethod)) ? $this->paymentMethod : Connect2PayClient::PAYMENT_METHOD_CREDITCARD;
   }
 
   public function setPaymentMethod($paymentMethod) {
@@ -3527,13 +3567,13 @@ class TransactionAttempt extends Container {
     $btInfo = new BankTransferPaymentMeanInfo();
     $reflector = new \ReflectionClass('PayXpert\Connect2Pay\BankAccount');
 
-    if (is_object($paymentMeanInfo->sender)) {
+    if (isset($paymentMeanInfo->sender) && is_object($paymentMeanInfo->sender)) {
       $sender = new BankAccount();
       self::copyScalarProperties($reflector->getProperties(), $paymentMeanInfo->sender, $sender);
       $btInfo->setSender($sender);
     }
 
-    if (is_object($paymentMeanInfo->recipient)) {
+    if (isset($paymentMeanInfo->recipient) && is_object($paymentMeanInfo->recipient)) {
       $recipient = new BankAccount();
       self::copyScalarProperties($reflector->getProperties(), $paymentMeanInfo->recipient, $recipient);
       $btInfo->setRecipient($recipient);
@@ -4748,6 +4788,152 @@ class WeChatDirectProcessResponse extends Container {
   }
 }
 
+class AliPayDirectProcessRequest {
+  const MODE_POS = "pos";
+  const MODE_APP = "app";
+  const IDENTITY_CODE_TYPE_BARCODE = "barcode";
+  const IDENTITY_CODE_TYPE_QRCODE = "qrcode";
+
+  /* ~~ */
+  public $apiVersion;
+  public $mode;
+  public $buyerIdentityCode;
+  public $identityCodeType;
+  public $notificationLang;
+  public $notificationTimeZone;
+
+  public function setApiVersion($apiVersion) {
+    $this->apiVersion = $apiVersion;
+    return $this;
+  }
+
+  public function setMode($mode) {
+    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY)) ? $mode : self::MODE_NATIVE;
+    return $this;
+  }
+
+  public function setBuyerIdentityCode($buyerIdentityCode) {
+    $this->buyerIdentityCode = $buyerIdentityCode;
+    return $this;
+  }
+
+  public function setIdentityCodeType($identityCodeType) {
+    $this->identityCodeType = $identityCodeType;
+    return $this;
+  }
+
+  public function setNotificationLang($notificationLang) {
+    $this->notificationLang = $notificationLang;
+    return $this;
+  }
+
+  public function setNotificationTimeZone($notificationTimeZone) {
+    $this->notificationTimeZone = $notificationTimeZone;
+    return $this;
+  }
+}
+
+class AliPayDirectProcessResponse extends Container {
+  private $apiVersion;
+  private $code;
+  private $message;
+  private $qrCode;
+  private $qrCodeUrl;
+  private $webSocketUrl;
+  private $transactionID;
+  private $transactionInfo;
+
+  public function getApiVersion() {
+    return $this->apiVersion;
+  }
+
+  public function setApiVersion($apiVersion) {
+    $this->apiVersion = $apiVersion;
+    return $this;
+  }
+
+  public function getCode() {
+    return $this->code;
+  }
+
+  public function setCode($code) {
+    $this->code = $code;
+    return $this;
+  }
+
+  public function getMessage() {
+    return $this->message;
+  }
+
+  public function setMessage($message) {
+    $this->message = $message;
+    return $this;
+  }
+
+  public function getQrCode() {
+    return $this->qrCode;
+  }
+
+  public function setQrCode($qrCode) {
+    $this->qrCode = $qrCode;
+    return $this;
+  }
+
+  public function getQrCodeUrl() {
+    return $this->qrCodeUrl;
+  }
+
+  public function setQrCodeUrl($qrCodeUrl) {
+    $this->qrCodeUrl = $qrCodeUrl;
+    return $this;
+  }
+
+  public function getWebSocketUrl() {
+    return $this->webSocketUrl;
+  }
+
+  public function setWebSocketUrl($webSocketUrl) {
+    $this->webSocketUrl = $webSocketUrl;
+    return $this;
+  }
+
+  public function getTransactionID() {
+    return $this->transactionID;
+  }
+
+  public function setTransactionID($transactionID) {
+    $this->transactionID = $transactionID;
+    return $this;
+  }
+
+  public function getTransactionInfo() {
+    return $this->transactionInfo;
+  }
+
+  public function setTransactionInfo($transactionInfo) {
+    $this->transactionInfo = $transactionInfo;
+    return $this;
+  }
+
+  public static function getFromJson($dataJson) {
+    $response = null;
+
+    if ($dataJson != null && is_object($dataJson)) {
+      // Root element, AccountInformation
+      $response = new AliPayDirectProcessResponse();
+      $reflector = new \ReflectionClass('PayXpert\Connect2Pay\AliPayDirectProcessResponse');
+      self::copyScalarProperties($reflector->getProperties(), $dataJson, $response);
+
+      // Transaction information
+      if (isset($dataJson->transactionInfo)) {
+        $response->transactionInfo = TransactionAttempt::getFromJson($dataJson->transactionInfo);
+      }
+    }
+
+    return $response;
+  }
+}
+
 /**
  * Helper to manipulate amount in different currencies.
  * Permits to convert amount between different currencies
@@ -5216,7 +5402,8 @@ class C2PValidate {
         (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER ||
         (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_DIRECTDEBIT ||
         (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_WECHAT ||
-        (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_LINE);
+        (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_LINE ||
+        (string) $paymentMethod == Connect2PayClient::PAYMENT_METHOD_ALIPAY);
   }
 
   /**
@@ -5230,7 +5417,11 @@ class C2PValidate {
     return ((string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_SOFORT ||
         (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_PRZELEWY24 ||
         (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_IDEAL ||
-        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_GIROPAY);
+        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_GIROPAY ||
+        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_EPS ||
+        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_POLI ||
+        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_DRAGONPAY ||
+        (string) $paymentNetwork == Connect2PayClient::PAYMENT_NETWORK_TRUSTLY);
   }
 
   /**
@@ -5241,8 +5432,8 @@ class C2PValidate {
    * @return boolean Validity is ok or not
    */
   static public function isOperation($operation) {
-    return ((string) $operation == Connect2PayClient::_OPERATION_TYPE_SALE ||
-        (string) $operation == Connect2PayClient::_OPERATION_TYPE_AUTHORIZE);
+    return ((string) $operation == Connect2PayClient::OPERATION_TYPE_SALE ||
+        (string) $operation == Connect2PayClient::OPERATION_TYPE_AUTHORIZE);
   }
 
   /**
@@ -5253,10 +5444,10 @@ class C2PValidate {
    * @return boolean Validity is ok or not
    */
   static public function isPaymentMode($paymentMode) {
-    return ((string) $paymentMode == Connect2PayClient::_PAYMENT_MODE_SINGLE ||
-        (string) $paymentMode == Connect2PayClient::_PAYMENT_MODE_ONSHIPPING ||
-        (string) $paymentMode == Connect2PayClient::_PAYMENT_MODE_RECURRENT ||
-        (string) $paymentMode == Connect2PayClient::_PAYMENT_MODE_INSTALMENTS);
+    return ((string) $paymentMode == Connect2PayClient::PAYMENT_MODE_SINGLE ||
+        (string) $paymentMode == Connect2PayClient::PAYMENT_MODE_ONSHIPPING ||
+        (string) $paymentMode == Connect2PayClient::PAYMENT_MODE_RECURRENT ||
+        (string) $paymentMode == Connect2PayClient::PAYMENT_MODE_INSTALMENTS);
   }
 
   /**
@@ -5267,10 +5458,10 @@ class C2PValidate {
    * @return boolean Validity is ok or not
    */
   static public function isSubscriptionType($subscriptionType) {
-    return ((string) $subscriptionType == Connect2PayClient::_SUBSCRIPTION_TYPE_NORMAL ||
-        (string) $subscriptionType == Connect2PayClient::_SUBSCRIPTION_TYPE_INFINITE ||
-        (string) $subscriptionType == Connect2PayClient::_SUBSCRIPTION_TYPE_ONETIME ||
-        (string) $subscriptionType == Connect2PayClient::_SUBSCRIPTION_TYPE_LIFETIME);
+    return ((string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_NORMAL ||
+        (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_INFINITE ||
+        (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_ONETIME ||
+        (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_LIFETIME);
   }
 
   /**

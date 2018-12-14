@@ -1,6 +1,7 @@
 <?php
 use PayXpert\Connect2Pay\Connect2PayClient;
 use PayXpert\Connect2Pay\WeChatDirectProcessRequest;
+use PayXpert\Connect2Pay\AliPayDirectProcessRequest;
 
 # Configuration
 $connect2pay = "https://connect2.payxpert.com/";
@@ -11,7 +12,7 @@ $password = "gr3atPassw0rd";
 //$paymentMethod = Connect2PayClient::PAYMENT_METHOD_CREDITCARD;
 //$paymentMethod = Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER;
 //$paymentNetwork = Connect2PayClient::PAYMENT_NETWORK_SOFORT;
-//$operation = Connect2PayClient::_OPERATION_TYPE_AUTHORIZE;
+//$operation = Connect2PayClient::OPERATION_TYPE_AUTHORIZE;
 
 // Credit Card specific field
 //$secure3d = false;
@@ -52,7 +53,7 @@ $shopperEmailAddress = "shopper@example.com";
 // Merchant notification
 //$merchantNotification = true;
 //$merchantNotificationTo = "sales@merchant.tld";
-//$merchantNotificationLang = Connect2PayClient::_LANG_EN;
+//$merchantNotificationLang = Connect2PayClient::LANG_EN;
 
 // Affiliation fields
 //$affiliateID = 1234567;
@@ -61,3 +62,9 @@ $shopperEmailAddress = "shopper@example.com";
 // WeChat direct specific fields
 //$weChatDirectMode = WeChatDirectProcessRequest::MODE_QUICKPAY;
 //$weChatDirectQuickPayCode = "1234567890";
+
+// AliPay direct process specific fields
+// $aliPayDirectMode = AliPayDirectProcessRequest::MODE_APP;
+// TO BE REPLACE WITH UPDATED BARCODE NUMBER IN SANDBOX APP
+// $buyerIdentityCode = "283648183259664856";
+// $identityCodeType = AliPayDirectProcessRequest::IDENTITY_CODE_TYPE_BARCODE;
