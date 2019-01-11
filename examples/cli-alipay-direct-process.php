@@ -89,6 +89,7 @@ if ($c2pClient->preparePayment()) {
         if ($request->mode == AliPayDirectProcessRequest::MODE_POS) {
           echo "QR Code base64: " . $response->getQrCode() . "\n";
           echo "QR Code URL: " . $response->getQrCodeUrl() . "\n";
+          echo "Exchange rate: " . $response->getExchangeRate() . "\n";
         } else {
           printTransaction($response->getTransactionInfo());
         }

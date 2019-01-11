@@ -87,6 +87,7 @@ if ($c2pClient->preparePayment()) {
         if ($request->mode == WeChatDirectProcessRequest::MODE_NATIVE) {
           echo "QR Code base64: " . $response->getQrCode() . "\n";
           echo "QR Code URL: " . $response->getQrCodeUrl() . "\n";
+          echo "Exchange rate: " . $response->getExchangeRate() . "\n";
         } else {
           printTransaction($response->getTransactionInfo());
         }

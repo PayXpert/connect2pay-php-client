@@ -41,7 +41,7 @@ namespace PayXpert\Connect2Pay;
  * PHP CURL extension
  * PHP OpenSSL extension
  *
- * @version 2.10.0
+ * @version 2.11.0
  *
  */
 class Connect2PayClient {
@@ -575,7 +575,7 @@ class Connect2PayClient {
     'ctrlCallbackURL' => 2048, /* */
     'timeOut' => 10, /* */
     'merchantNotificationTo' => 100, /* */
-    'merchantNotificationLang' => 2, /* */
+    'merchantNotificationLang' => 10, /* */
     'ctrlCustomData' => 2048 /* */
   );
 
@@ -4691,6 +4691,7 @@ class WeChatDirectProcessResponse extends Container {
   private $apiVersion;
   private $code;
   private $message;
+  private $exchangeRate;
   private $qrCode;
   private $qrCodeUrl;
   private $webSocketUrl;
@@ -4721,6 +4722,15 @@ class WeChatDirectProcessResponse extends Container {
 
   public function setMessage($message) {
     $this->message = $message;
+    return $this;
+  }
+
+  public function getExchangeRate() {
+    return $this->exchangeRate;
+  }
+
+  public function setExchangeRate($exchangeRate) {
+    $this->exchangeRate = $exchangeRate;
     return $this;
   }
 
@@ -4837,6 +4847,7 @@ class AliPayDirectProcessResponse extends Container {
   private $apiVersion;
   private $code;
   private $message;
+  private $exchangeRate;
   private $qrCode;
   private $qrCodeUrl;
   private $webSocketUrl;
@@ -4867,6 +4878,15 @@ class AliPayDirectProcessResponse extends Container {
 
   public function setMessage($message) {
     $this->message = $message;
+    return $this;
+  }
+
+  public function getExchangeRate() {
+    return $this->exchangeRate;
+  }
+
+  public function setExchangeRate($exchangeRate) {
+    $this->exchangeRate = $exchangeRate;
     return $this;
   }
 
