@@ -88,6 +88,14 @@ if ($c2pClient->preparePayment()) {
           echo "QR Code base64: " . $response->getQrCode() . "\n";
           echo "QR Code URL: " . $response->getQrCodeUrl() . "\n";
           echo "Exchange rate: " . $response->getExchangeRate() . "\n";
+        } elseif ($request->mode == WeChatDirectProcessRequest::MODE_SDK) {
+          echo "App ID: " . $response->getAppId() . "\n";
+          echo "Partner ID: " . $response->getPartnerId() . "\n";
+          echo "Prepay ID: " . $response->getPrepayId() . "\n";
+          echo "Package Str: " . $response->getPackageStr() . "\n";
+          echo "Nonce Str: " . $response->getNonceStr() . "\n";
+          echo "Timestamp: " . $response->getTimestamp() . "\n";
+          echo "Signature: " . $response->getSign() . "\n";
         } else {
           printTransaction($response->getTransactionInfo());
         }

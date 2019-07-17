@@ -40,11 +40,13 @@ namespace PayXpert\Connect2Pay;
  * PHP >= 5.3.0
  * PHP CURL extension
  * PHP OpenSSL extension
- *
- * @version 2.11.0
- *
  */
 class Connect2PayClient {
+  /*
+   * Client version
+   */
+  const CLIENT_VERSION = "2.12.0";
+
   /*
    * API version implemented by this class
    */
@@ -201,6 +203,7 @@ class Connect2PayClient {
    * Subscription types constants
    */
   const SUBSCRIPTION_TYPE_NORMAL = 'normal';
+  const SUBSCRIPTION_TYPE_PARTPAYMENT = 'partpayment';
   const SUBSCRIPTION_TYPE_LIFETIME = 'lifetime';
   const SUBSCRIPTION_TYPE_ONETIME = 'onetime';
   const SUBSCRIPTION_TYPE_INFINITE = 'infinite';
@@ -538,10 +541,11 @@ class Connect2PayClient {
       'TRANS_REFUND' => '/transaction/:transactionID/refund', /* */
       'TRANS_REBILL' => '/transaction/:transactionID/rebill', /* */
       'TRANS_CANCEL' => '/transaction/:transactionID/cancel', /* */
+      'TRANS_CAPTURE' => '/transaction/:transactionID/capture', /* */
       'TRANS_DOPAY' => '/payment/:customerToken', /* */
       'SUB_CANCEL' => '/subscription/:subscriptionID/cancel', /* */
       'WECHAT_DIRECT_PROCESS' => '/payment/:customerToken/process/wechat/direct', /* */
-      'ALIPAY_DIRECT_PROCESS' => '/payment/:customerToken/process/alipay/direct'
+      'ALIPAY_DIRECT_PROCESS' => '/payment/:customerToken/process/alipay/direct' /* */
   );
 
   /*
@@ -679,7 +683,6 @@ class Connect2PayClient {
     'merchantNotificationLang', /* */
     'themeID' /* */
   );
-
   private $apiVersion = self::API_VERSION;
 
   /**
@@ -1455,6 +1458,52 @@ class Connect2PayClient {
   }
 
   /**
+   * Capture a transaction.
+   *
+   * @param string $transactionID
+   *          Identifier of the transaction to capture
+   * @param int $amount
+   *          The amount to capture, must be lower or equal to the authorized amount
+   * @return CaptureStatus The CaptureStatus filled with values returned from the
+   *         operation or null on failure (in that case call getClientErrorMessage())
+   */
+  public function captureTransaction($transactionID, $amount) {
+    if ($transactionID !== null && $amount !== null && (is_int($amount) || ctype_digit($amount))) {
+      $url = $this->url . str_replace(":transactionID", $transactionID, Connect2PayClient::$API_ROUTES['TRANS_CAPTURE']);
+      $trans = array();
+      $trans['apiVersion'] = $this->apiVersion;
+      $trans['amount'] = intval($amount);
+
+      $result = $this->doPost($url, json_encode($trans));
+
+      $this->status = null;
+      if ($result != null && is_array($result)) {
+        $this->status = new CaptureStatus();
+        if (isset($result['code'])) {
+          $this->status->setCode($result['code']);
+        }
+        if (isset($result['message'])) {
+          $this->status->setMessage($result['message']);
+        }
+        if (isset($result['transactionID'])) {
+          $this->status->setTransactionID($result['transactionID']);
+        }
+        if (isset($result['operation'])) {
+          $this->status->setOperation($result['operation']);
+        }
+
+        return $this->status;
+      } else {
+        $this->clientErrorMessage = 'No result received from capture call: ' . $this->clientErrorMessage;
+      }
+    } else {
+      $this->clientErrorMessage = '"transactionID" must not be null, "amount" must be a positive integer';
+    }
+
+    return null;
+  }
+
+  /**
    * Do a subscription cancellation.
    *
    * @param int $subscriptionID
@@ -1685,6 +1734,7 @@ class Connect2PayClient {
       return null;
     }
 
+    curl_setopt($curl, CURLOPT_USERAGENT, "PayXpert PHP C2P API Client/" . self::CLIENT_VERSION);
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
@@ -4566,6 +4616,9 @@ class RebillStatus extends OperationStatus {
 class CancelStatus extends OperationStatus {
 }
 
+class CaptureStatus extends OperationStatus {
+}
+
 class CartProduct {
   // Fields are public otherwise json_encode can't see them...
   public $cartProductId;
@@ -4653,6 +4706,7 @@ class CartProduct {
 class WeChatDirectProcessRequest {
   const MODE_NATIVE = "native";
   const MODE_QUICKPAY = "quickpay";
+  const MODE_SDK = "sdk";
 
   /* ~~ */
   public $apiVersion;
@@ -4667,7 +4721,7 @@ class WeChatDirectProcessRequest {
   }
 
   public function setMode($mode) {
-    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY)) ? $mode : self::MODE_NATIVE;
+    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY, self::MODE_SDK)) ? $mode : self::MODE_NATIVE;
     return $this;
   }
 
@@ -4697,6 +4751,14 @@ class WeChatDirectProcessResponse extends Container {
   private $webSocketUrl;
   private $transactionID;
   private $transactionInfo;
+  // SDK mode fields
+  private $appId;
+  private $partnerId;
+  private $prepayId;
+  private $packageStr;
+  private $nonceStr;
+  private $timestamp;
+  private $sign;
 
   public function getApiVersion() {
     return $this->apiVersion;
@@ -4779,6 +4841,69 @@ class WeChatDirectProcessResponse extends Container {
     return $this;
   }
 
+  public function getAppId() {
+    return $this->appId;
+  }
+
+  public function setAppId($appId) {
+    $this->appId = $appId;
+    return $this;
+  }
+
+  public function getPartnerId() {
+    return $this->partnerId;
+  }
+
+  public function setPartnerId($partnerId) {
+    $this->partnerId = $partnerId;
+    return $this;
+  }
+
+  public function getPrepayId() {
+    return $this->prepayId;
+  }
+
+  public function setPrepayId($prepayId) {
+    $this->prepayId = $prepayId;
+    return $this;
+  }
+
+  public function getPackageStr() {
+    return $this->packageStr;
+  }
+
+  public function setPackageStr($packageStr) {
+    $this->packageStr = $packageStr;
+    return $this;
+  }
+
+  public function getNonceStr() {
+    return $this->nonceStr;
+  }
+
+  public function setNonceStr($nonceStr) {
+    $this->nonceStr = $nonceStr;
+    return $this;
+  }
+
+  public function getTimestamp() {
+    return $this->timestamp;
+  }
+
+  public function setTimestamp($timestamp) {
+    $this->timestamp = $timestamp;
+    return $this;
+  }
+
+  public function getSign() {
+    return $this->sign;
+  }
+
+  public function setSign($sign) {
+    $this->sign = $sign;
+    return $this;
+  }
+
   public static function getFromJson($dataJson) {
     $response = null;
 
@@ -4801,6 +4926,7 @@ class WeChatDirectProcessResponse extends Container {
 class AliPayDirectProcessRequest {
   const MODE_POS = "pos";
   const MODE_APP = "app";
+  const MODE_SDK = "sdk";
   const IDENTITY_CODE_TYPE_BARCODE = "barcode";
   const IDENTITY_CODE_TYPE_QRCODE = "qrcode";
 
@@ -4818,7 +4944,7 @@ class AliPayDirectProcessRequest {
   }
 
   public function setMode($mode) {
-    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY)) ? $mode : self::MODE_NATIVE;
+    $this->mode = in_array($mode, array(self::MODE_POS, self::MODE_APP, self::MODE_SDK)) ? $mode : self::MODE_NATIVE;
     return $this;
   }
 
@@ -4853,6 +4979,8 @@ class AliPayDirectProcessResponse extends Container {
   private $webSocketUrl;
   private $transactionID;
   private $transactionInfo;
+  // SDK mode field
+  private $rawRequest;
 
   public function getApiVersion() {
     return $this->apiVersion;
@@ -4932,6 +5060,15 @@ class AliPayDirectProcessResponse extends Container {
 
   public function setTransactionInfo($transactionInfo) {
     $this->transactionInfo = $transactionInfo;
+    return $this;
+  }
+
+  public function getRawRequest() {
+    return $this->rawRequest;
+  }
+
+  public function setRawRequest($rawRequest) {
+    $this->rawRequest = $rawRequest;
     return $this;
   }
 
@@ -5479,6 +5616,7 @@ class C2PValidate {
    */
   static public function isSubscriptionType($subscriptionType) {
     return ((string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_NORMAL ||
+        (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_PARTPAYMENT ||
         (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_INFINITE ||
         (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_ONETIME ||
         (string) $subscriptionType == Connect2PayClient::SUBSCRIPTION_TYPE_LIFETIME);
