@@ -23,6 +23,8 @@ if ($transaction != null && $transaction->getResultCode() != null) {
     echo "Referral transaction ID: " . $transaction->getRefTransactionID() . "\n";
   }
   echo "Provider transaction ID: " . $transaction->getProviderTransactionID() . "\n";
+  echo "Order ID: " . $transaction->getOrderID() . "\n";
+  echo "Order Description: " . $transaction->getOrderDescription() . "\n";
   echo "Payment method: " . $transaction->getPaymentMethod() . "\n";
   if ($transaction->getPaymentNetwork()) {
     echo "Payment network: " . $transaction->getPaymentNetwork() . "\n";

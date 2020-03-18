@@ -45,12 +45,12 @@ class Connect2PayClient {
   /*
    * Client version
    */
-  const CLIENT_VERSION = "2.12.0";
+  const CLIENT_VERSION = "2.13.0";
 
   /*
    * API version implemented by this class
    */
-  const API_VERSION = "002.60";
+  const API_VERSION = "002.61";
 
   /*
    * Payment methods constants
@@ -538,6 +538,7 @@ class Connect2PayClient {
       'TRANS_PREPARE' => '/payment/prepare', /* */
       'PAYMENT_STATUS' => '/payment/:merchantToken/status', /* */
       'TRANS_INFO' => '/transaction/:transactionID/info', /* */
+      'TRANS_EXPORT' => '/transactions/export', /* */
       'TRANS_REFUND' => '/transaction/:transactionID/refund', /* */
       'TRANS_REBILL' => '/transaction/:transactionID/rebill', /* */
       'TRANS_CANCEL' => '/transaction/:transactionID/cancel', /* */
@@ -1273,6 +1274,35 @@ class Connect2PayClient {
           return $this->status;
         }
       }
+    }
+
+    return null;
+  }
+
+  /**
+   *
+   * Export a list of all transactions in a certain date range.
+   *
+   * @param ExportTransactionsRequest $request
+   *          The request containing fields to filter the list of exported transactions
+   *
+   * @return ExportTransactionsResponse The transactions response object
+   */
+  public function exportTransactions($request) {
+    if ($request !== null) {
+      $url = $this->url . Connect2PayClient::$API_ROUTES['TRANS_EXPORT'];
+
+      $request->setApiVersion($this->getApiVersion());
+
+      $result = $this->doGet($url, $request->toParamsArray(), false);
+
+      if ($result != null && is_object($result)) {
+        return ExportTransactionsResponse::getFromJson($result);
+      } else {
+        $this->clientErrorMessage = 'No result received from export transactions call: ' . $this->clientErrorMessage;
+      }
+    } else {
+      $this->clientErrorMessage = '"request" must not be null';
     }
 
     return null;
@@ -3339,6 +3369,20 @@ class TransactionAttempt extends Container {
    */
   private $paymentMeanInfo;
 
+  /**
+   * The merchant internal unique order identifier as provided during payment creation
+   *
+   * @var String
+   */
+  private $orderID;
+
+  /**
+   * The description of the product purchased by the customer as provided during payment creation
+   *
+   * @var String
+   */
+  private $orderDescription;
+
   public function getPaymentID() {
     return $this->paymentID;
   }
@@ -3545,6 +3589,24 @@ class TransactionAttempt extends Container {
   public function setPaymentMeanInfo($paymentMeanInfo) {
     $this->paymentMeanInfo = $paymentMeanInfo;
     return $this;
+  }
+
+  public function getOrderID() {
+    return $this->orderID;
+  }
+
+  public function setOrderID($orderID) {
+    $this->orderID = $orderID;
+    return $this;
+  }
+
+  public function setOrderDescription($orderDescription) {
+    $this->orderDescription = $orderDescription;
+    return $this;
+  }
+
+  public function getOrderDescription() {
+    return $this->orderDescription;
   }
 
   public static function getFromRawJson($json) {
@@ -4707,6 +4769,7 @@ class WeChatDirectProcessRequest {
   const MODE_NATIVE = "native";
   const MODE_QUICKPAY = "quickpay";
   const MODE_SDK = "sdk";
+  const MODE_MINIPROGRAM = "miniprogram";
 
   /* ~~ */
   public $apiVersion;
@@ -4714,6 +4777,7 @@ class WeChatDirectProcessRequest {
   public $quickPayCode;
   public $notificationLang;
   public $notificationTimeZone;
+  public $openID;
 
   public function setApiVersion($apiVersion) {
     $this->apiVersion = $apiVersion;
@@ -4721,7 +4785,7 @@ class WeChatDirectProcessRequest {
   }
 
   public function setMode($mode) {
-    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY, self::MODE_SDK)) ? $mode : self::MODE_NATIVE;
+    $this->mode = in_array($mode, array(self::MODE_NATIVE, self::MODE_QUICKPAY, self::MODE_SDK, self::MODE_MINIPROGRAM)) ? $mode : self::MODE_NATIVE;
     return $this;
   }
 
@@ -4737,6 +4801,11 @@ class WeChatDirectProcessRequest {
 
   public function setNotificationTimeZone($notificationTimeZone) {
     $this->notificationTimeZone = $notificationTimeZone;
+    return $this;
+  }
+
+  public function setOpenID($openID) {
+    $this->openID = $openID;
     return $this;
   }
 }
@@ -4759,6 +4828,8 @@ class WeChatDirectProcessResponse extends Container {
   private $nonceStr;
   private $timestamp;
   private $sign;
+  private $paySign;
+  private $signType;
 
   public function getApiVersion() {
     return $this->apiVersion;
@@ -4895,13 +4966,22 @@ class WeChatDirectProcessResponse extends Container {
     return $this;
   }
 
-  public function getSign() {
-    return $this->sign;
+  public function getPaySign() {
+    return $this->paySign;
   }
 
-  public function setSign($sign) {
-    $this->sign = $sign;
+  public function setPaySign($paySign) {
+    $this->paySign = $paySign;
     return $this;
+  }
+
+  public function getSignType() {
+      return $this->signType;
+  }
+
+  public function setSignType($signType) {
+      $this->signType = $signType;
+      return $this;
   }
 
   public static function getFromJson($dataJson) {
@@ -5089,6 +5169,99 @@ class AliPayDirectProcessResponse extends Container {
 
     return $response;
   }
+}
+
+class ExportTransactionsRequest {
+
+  /* ~~ */
+  public $apiVersion;
+  public $startTime;
+  public $endTime;
+  public $operation;
+  public $paymentMethod;
+  public $paymentNetwork;
+  public $transactionResultCode;
+
+  public function setApiVersion($apiVersion) {
+    $this->apiVersion = $apiVersion;
+    return $this;
+  }
+
+  public function setStartTime($startTime) {
+    $this->startTime = $startTime;
+    return $this;
+  }
+
+  public function setEndTime($endTime) {
+    $this->endTime = $endTime;
+    return $this;
+  }
+
+  public function setOperation($operation) {
+    $this->operation = $operation;
+    return $this;
+  }
+
+  public function setPaymentMethod($paymentMethod) {
+    $this->paymentMethod = $paymentMethod;
+    return $this;
+  }
+
+  public function setPaymentNetwork($paymentNetwork) {
+    $this->paymentNetwork = $paymentNetwork;
+    return $this;
+  }
+
+  public function setTransactionResultCode($transactionResultCode) {
+    $this->transactionResultCode = $transactionResultCode;
+    return $this;
+  }
+
+  public function toParamsArray() {
+    $array = array();
+
+    foreach ($this as $key => $value) {
+      if ($value !== NULL) {
+        $array[$key] = $value;
+      }
+    }
+
+    return $array;
+  }
+
+}
+
+class ExportTransactionsResponse extends Container {
+
+  private $transactions;
+
+  public function getTransactions() {
+    return $this->transactions;
+  }
+
+  public function setTransactions($transactions) {
+    $this->transactions = $transactions;
+    return $this;
+  }
+
+  public static function getFromJson($dataJson) {
+    $response = null;
+
+    if ($dataJson != null && is_object($dataJson)) {
+
+      $response = new ExportTransactionsResponse();
+      $response->transactions = array();
+
+      if (isset($dataJson->transactions) && is_array($dataJson->transactions)) {
+        foreach ($dataJson->transactions as $transactionJson) {
+          $response->transactions[] = TransactionAttempt::getFromJson($transactionJson);
+        }
+      }
+    }
+
+    return $response;
+  }
+
 }
 
 /**
