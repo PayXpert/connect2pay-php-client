@@ -11,9 +11,9 @@ abstract class CommonTest extends TestCase {
   protected $c2pClient;
 
   public function setUp() {
-    $this->connect2pay = "http://localhost:43901";
-    $this->originator = "123456";
-    $this->password = "Gr34tP4ssw0rd!!";
+    $this->connect2pay = "http://connect2pay.dev.payxpert.com:9001";
+    $this->originator = "102019";
+    $this->password = "525c563011420f4d7a230ea1fc2fbe024031febb34da9f1508d564c5c72e0284";
     $this->c2pClient = new Connect2PayClient($this->connect2pay, $this->originator, $this->password);
   }
 }

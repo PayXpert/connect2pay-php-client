@@ -4,7 +4,6 @@
  * system. This script must be hosted under the URL provided during the payment
  * creation in the ctrlCallbackURL parameter
  */
-require_once (dirname(__FILE__) . "/../src/Connect2PayClient.php");
 require_once (dirname(__FILE__) . "/configuration.php");
 
 use PayXpert\Connect2Pay\Connect2PayClient;
@@ -24,7 +23,7 @@ if ($c2pClient->handleCallbackStatus()) {
   $merchantToken = $status->getMerchantToken();
 
   // Get the last transaction processed for this payment
-  $transaction = $status->getLastTransactionAttempt();
+  $transaction = $status->getLastInitialTransactionAttempt();
 
   $transactionId = null;
   if ($transaction !== null) {

@@ -1,8 +1,8 @@
 <?php
-require_once (dirname(__FILE__) . "/../src/Connect2PayClient.php");
 require_once (dirname(__FILE__) . "/configuration.php");
 
 use PayXpert\Connect2Pay\Connect2PayClient;
+use PayXpert\Connect2Pay\containers\constant\PaymentMethod;
 
 // Merchant token should be passed as the first parameter of this script
 // Encrypted status should be passed as the second argument
@@ -22,7 +22,7 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
     echo "Status: " . $status->getStatus() . "\n";
     echo "Error code: " . $status->getErrorCode() . "\n";
 
-    $transaction = $status->getLastTransactionAttempt();
+    $transaction = $status->getLastInitialTransactionAttempt();
 
     if ($transaction !== null) {
       echo "Number of transaction attempts: " . count($status->getTransactions()) . "\n";
@@ -46,27 +46,21 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
       $paymentMeanInfo = $transaction->getPaymentMeanInfo();
       if ($paymentMeanInfo !== null) {
         switch ($transaction->getPaymentMethod()) {
-          case Connect2PayClient::PAYMENT_METHOD_CREDITCARD:
-            if (!empty($paymentMeanInfo->getCardNumber())) {
+          case PaymentMethod::CREDIT_CARD:
+            if ($paymentMeanInfo->getCardNumber() !== null) {
               echo "Payment Mean Information:\n";
               echo "* Card Holder Name: " . $paymentMeanInfo->getCardHolderName() . "\n";
               echo "* Card Number: " . $paymentMeanInfo->getCardNumber() . "\n";
               echo "* Card Expiration: " . $paymentMeanInfo->getCardExpireMonth() . "/" . $paymentMeanInfo->getCardExpireYear() . "\n";
               echo "* Card Brand: " . $paymentMeanInfo->getCardBrand() . "\n";
-              if (!empty($paymentMeanInfo->getCardLevel())) {
+              if ($paymentMeanInfo->getCardLevel() !== null) {
                 echo "* Card Level/subtype: " . $paymentMeanInfo->getCardLevel() . "/" . $paymentMeanInfo->getCardSubType() . "\n";
                 echo "* Card country code: " . $paymentMeanInfo->getIinCountry() . "\n";
                 echo "* Card bank name: " . $paymentMeanInfo->getIinBankName() . "\n";
               }
             }
             break;
-          case Connect2PayClient::PAYMENT_METHOD_TODITOCASH:
-            if (!empty($paymentMeanInfo->getCardNumber())) {
-              echo "Payment Mean Information:\n";
-              echo "* Card Number: " . $paymentMeanInfo->getCardNumber() . "\n";
-            }
-            break;
-          case Connect2PayClient::PAYMENT_METHOD_BANKTRANSFER:
+          case PaymentMethod::BANK_TRANSFER:
             $sender = $paymentMeanInfo->getSender();
             $recipient = $paymentMeanInfo->getRecipient();
             if ($sender !== null) {
@@ -87,7 +81,7 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
               echo ">> Country code: " . $recipient->getCountryCode() . "\n";
             }
             break;
-          case Connect2PayClient::PAYMENT_METHOD_DIRECTDEBIT:
+          case PaymentMethod::DIRECT_DEBIT:
             $account = $paymentMeanInfo->getBankAccount();
 
             if ($account !== null) {
@@ -145,17 +139,17 @@ if ($c2pClient->handleRedirectStatus($encryptedStatus, $merchantToken)) {
       $shopper = $transaction->getShopper();
       if ($shopper !== null) {
         echo "Shopper info:\n";
-        echo "* Name: " . $shopper->getName() . "\n";
-        echo "* Address: " . $shopper->getAddress() . " - " . $shopper->getZipcode() . " " . $shopper->getCity() . " - " .
+        echo "* Name: " . $shopper->getFirstName() . " " . $shopper->getLastName() . "\n";
+        echo "* Address: " . $shopper->getAddress1() . " - " . $shopper->getZipcode() . " " . $shopper->getCity() . " - " .
              $shopper->getCountryCode() . "\n";
         echo "* Email: " . $shopper->getEmail() . "\n";
-        if (!empty($shopper->getBirthDate())) {
+        if ($shopper->getBirthDate() !== null) {
           echo "* Birth date: " . $shopper->getBirthDate() . "\n";
         }
-        if (!empty($shopper->getIdNumber())) {
+        if ($shopper->getIdNumber() !== null) {
           echo "* ID Number: " . $shopper->getIdNumber() . "\n";
         }
-        if (!empty($shopper->getIpAddress())) {
+        if ($shopper->getIpAddress() !== null) {
           echo "* IP Address: " . $shopper->getIpAddress() . "\n";
         }
       }

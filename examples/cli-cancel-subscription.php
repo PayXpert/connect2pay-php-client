@@ -2,10 +2,10 @@
 /*
  * This file shows how to cancel a subscription using the connect2pay client
  */
-require_once (dirname(__FILE__) . "/../src/Connect2PayClient.php");
 require_once (dirname(__FILE__) . "/configuration.php");
 
 use PayXpert\Connect2Pay\Connect2PayClient;
+use PayXpert\Connect2Pay\containers\constant\SubscriptionCancelReason;
 
 // Subscription ID should be passed as the first parameter of this script
 if ($argc < 2) {
@@ -21,7 +21,7 @@ if (isset($proxy_host) && isset($proxy_port)) {
   $c2pClient->useProxy($proxy_host, $proxy_port);
 }
 
-$result = $c2pClient->cancelSubscription($subscriptionID, Connect2PayClient::_SUBSCRIPTION_CANCEL_BANK_DENIAL);
+$result = $c2pClient->cancelSubscription($subscriptionID, SubscriptionCancelReason::BANK_DENIAL);
 
 if ($result == "200") {
   echo "Subscription " . $subscriptionID . " cancelled successfully: " . $c2pClient->getClientErrorMessage() . "\n";

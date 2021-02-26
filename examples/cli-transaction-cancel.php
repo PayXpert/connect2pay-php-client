@@ -1,5 +1,4 @@
 <?php
-require_once (dirname(__FILE__) . "/../src/Connect2PayClient.php");
 require_once (dirname(__FILE__) . "/configuration.php");
 
 use PayXpert\Connect2Pay\Connect2PayClient;
