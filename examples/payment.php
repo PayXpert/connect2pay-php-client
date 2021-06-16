@@ -72,22 +72,17 @@ $prepareRequest->setMerchantNotification(true);
 $prepareRequest->setMerchantNotificationTo("sales@merchant.com");
 $prepareRequest->setMerchantNotificationLang("en");
 
-// Validate our information
-if ($prepareRequest->validate()) {
-    // Create the payment on the payment page
-    $result = $c2pClient->preparePayment($prepareRequest);
-    if ($result !== false) {
-        // We can save in session the token info returned by the payment page (could
-        // be used later when the customer will return from the payment page)
-        $_SESSION['merchantToken'] = $result->getMerchantToken();
 
-        // If setup is correct redirect the customer to the payment page.
-        header('Location: ' . $c2pClient->getCustomerRedirectURL($result));
-    } else {
-        echo "error prepareTransaction: ";
-        echo $c2pClient->getClientErrorMessage() . "\n";
-    }
+// Create the payment on the payment page
+$result = $c2pClient->preparePayment($prepareRequest);
+if ($result !== false) {
+    // We can save in session the token info returned by the payment page (could
+    // be used later when the customer will return from the payment page)
+    $_SESSION['merchantToken'] = $result->getMerchantToken();
+
+    // If setup is correct redirect the customer to the payment page.
+    header('Location: ' . $c2pClient->getCustomerRedirectURL($result));
 } else {
-  echo "Validation error: ";
-  echo $prepareRequest->getError() . "\n";
+    echo "error prepareTransaction: ";
+    echo $c2pClient->getClientErrorMessage() . "\n";
 }
