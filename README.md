@@ -29,6 +29,7 @@ use PayXpert\Connect2Pay\containers\Shipping;
 use PayXpert\Connect2Pay\containers\Shopper;
 use PayXpert\Connect2Pay\containers\Account;
 use PayXpert\Connect2Pay\containers\constant\OrderShippingType;
+use PayXpert\Connect2Pay\containers\constant\OrderType;
 use PayXpert\Connect2Pay\containers\constant\PaymentMethod;
 use PayXpert\Connect2Pay\containers\constant\PaymentMode;
 use PayXpert\Connect2Pay\containers\constant\AccountAge;
@@ -63,6 +64,7 @@ $prepareRequest->setCtrlCallbackURL("https://merchant.example.com/payment/callba
 
 $order->setId("ABC-123456");
 $order->setShippingType(OrderShippingType::DIGITAL_GOODS);
+$order->setType(OrderType::GOODS_SERVICE);
 $order->setDescription("Payment of €25.99");
 
 $shopper->setId("1234567WX");
