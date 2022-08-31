@@ -33,7 +33,7 @@ use PayXpert\Connect2Pay\containers\constant\SubscriptionCancelReason;
 use PayXpert\Connect2Pay\containers\constant\Unavailable;
 
 /**
- * Copyright 2013-2021 PayXpert
+ * Copyright 2013-2022 PayXpert
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,12 +79,12 @@ class Connect2PayClient
     /**
      * Client version
      */
-    const CLIENT_VERSION = "2.70.0";
+    const CLIENT_VERSION = "2.71.0";
 
     /**
      * API version implemented by this class
      */
-    const API_VERSION = "002.70";
+    const API_VERSION = "002.71";
 
     /**
      * API calls routes

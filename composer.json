@@ -1,7 +1,7 @@
 {
 	"name" : "payxpert/connect2pay",
-	"description" : "Payxpert Payment Page System client library",
-	"version" : "2.70.0",
+	"description" : "PayXpert Payment Page System client library",
+	"version" : "2.71.0",
 	"license" : "Apache-2.0",
 	"keywords" : [
 		"payment",

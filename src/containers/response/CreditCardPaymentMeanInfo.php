@@ -26,6 +26,13 @@ class CreditCardPaymentMeanInfo
     private $cardExpireMonth;
 
     /**
+     * The token associated with the card (if enabled for the account)
+     *
+     * @var string
+     */
+    private $cardToken;
+
+    /**
      * The name of the holder of the card
      *
      * @var string
@@ -116,6 +123,17 @@ class CreditCardPaymentMeanInfo
     public function setCardExpireMonth($cardExpireMonth)
     {
         $this->cardExpireMonth = $cardExpireMonth;
+        return $this;
+    }
+
+    public function getCardToken()
+    {
+        return $this->cardToken;
+    }
+
+    public function setCardToken($cardToken)
+    {
+        $this->cardToken = $cardToken;
         return $this;
     }
 

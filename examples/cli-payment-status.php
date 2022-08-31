@@ -65,6 +65,9 @@ if ($status != null && $status->getErrorCode() != null) {
               echo "* Card Expiration: " . $paymentMeanInfo->getCardExpireMonth() . "/" . $paymentMeanInfo->getCardExpireYear() . "\n";
               echo "* Card Brand: " . $paymentMeanInfo->getCardBrand() . "\n";
 
+              if ($paymentMeanInfo->getCardToken() !== null) {
+                echo "* Card Token: " . $paymentMeanInfo->getCardToken() . "\n";
+	      }
               if ($paymentMeanInfo->getCardLevel() !== null) {
                 echo "* Card Level/subtype: " . $paymentMeanInfo->getCardLevel() . "/" . $paymentMeanInfo->getCardSubType() . "\n";
                 echo "* Card country code: " . $paymentMeanInfo->getIinCountry() . "\n";
