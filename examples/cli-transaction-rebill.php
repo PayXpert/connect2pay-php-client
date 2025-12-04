@@ -12,12 +12,13 @@ if ($argc < 3) {
 
 $transactionId = $argv[1];
 $amount = $argv[2];
+$orderId = $argv[3] ?? null;
+$merchantIdentifier = $argv[4] ?? null;
 
 $c2pClient = new Connect2PayClient($connect2pay, $originator, $password);
-$status = $c2pClient->rebillTransaction($transactionId, $amount);
+$status = $c2pClient->rebillTransaction($transactionId, $amount, $orderId, $merchantIdentifier);
 
 if ($status != null && $status->getCode() != null) {
-  $code = (int) $status->getCode();
   echo "Rebill result:\n";
   echo "~ Error code: " . $status->getCode() . "\n";
   echo "~ Error message: " . $status->getMessage() . "\n";
@@ -26,4 +27,3 @@ if ($status != null && $status->getCode() != null) {
 } else {
   echo "Error: " . $c2pClient->getClientErrorMessage() . "\n";
 }
-?>

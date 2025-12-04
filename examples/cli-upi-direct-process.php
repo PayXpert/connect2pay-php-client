@@ -5,7 +5,7 @@ use PayXpert\Connect2Pay\Connect2PayClient;
 use PayXpert\Connect2Pay\containers\constant\OrderShippingType;
 use PayXpert\Connect2Pay\containers\constant\PaymentMethod;
 use PayXpert\Connect2Pay\containers\constant\PaymentMode;
-use PayXpert\Connect2Pay\containers\request\AliPayDirectProcessRequest;
+use PayXpert\Connect2Pay\containers\request\UpiDirectProcessRequest;
 use WebSocket\Client;
 use PayXpert\Connect2Pay\containers\response\TransactionAttempt;
 use PayXpert\Connect2Pay\containers\Order;
@@ -25,17 +25,17 @@ $prepareRequest = new PaymentPrepareRequest();
 $shopper = new Shopper();
 $order = new Order();
 
-$realAliPayMode = (isset($aliPayDirectMode)) ? $aliPayDirectMode : AliPayDirectProcessRequest::MODE_POS;
+$realUpiMode = (isset($upiDirectMode)) ? $upiDirectMode : UpiDirectProcessRequest::MODE_POS;
 
 // Transaction data
 $order->setId(date("Y-m-d-H.i.s"));
 
-$prepareRequest->setPaymentMethod(PaymentMethod::ALIPAY);
+$prepareRequest->setPaymentMethod(PaymentMethod::UPI);
 $prepareRequest->setPaymentMode(PaymentMode::SINGLE);
 $shopper->setId("1234567");
 $order->setShippingType(OrderShippingType::DIGITAL_GOODS);
 $prepareRequest->setAmount($amount);
-$order->setDescription("Test AliPay purchase.");
+$order->setDescription("Test UPI purchase.");
 $prepareRequest->setCurrency($currency);
 $shopper->setFirstName("John");
 $shopper->setLastName("Doe");
@@ -74,25 +74,14 @@ if ($result !== false) {
   echo "Payment prepare returned code " . $resultCode . "\n";
 
   if ($resultCode == "200") {
-    echo "Processing AliPay direct transaction...\n";
+    echo "Processing UPI direct transaction...\n";
 
-    $request = new AliPayDirectProcessRequest();
-    $request->setMode($realAliPayMode);
-
-    if ($request->getMode() == AliPayDirectProcessRequest::MODE_APP) {
-      if (isset($buyerIdentityCode) && isset($identityCodeType)) {
-        $request->setBuyerIdentityCode($buyerIdentityCode);
-        $request->setIdentityCodeType($identityCodeType);
-      } else {
-        echo "/!\ AliPay APP code not defined\n";
-      }
-    } else if ($request->getMode() == AliPayDirectProcessRequest::MODE_SDK) {
-      $request->setSdkOsType(AliPayDirectProcessRequest::OS_TYPE_ANDROID);
-    }
+    $request = new UpiDirectProcessRequest();
+    $request->setMode($realUpiMode);
 
     $customerToken = $c2pClient->getCustomerToken();
 
-    $response = $c2pClient->directAliPayProcess($customerToken, $request);
+    $response = $c2pClient->directUpiProcess($customerToken, $request);
 
     if ($response != null) {
       echo "Result code: " . $response->getCode() . "\n";
@@ -100,12 +89,9 @@ if ($result !== false) {
       echo "Transaction ID: " . $response->getTransactionID() . "\n";
 
       if ($response->getCode() == "200") {
-        if ($request->getMode() == AliPayDirectProcessRequest::MODE_POS) {
+        if ($request->getMode() == UpiDirectProcessRequest::MODE_POS) {
           echo "QR Code base64: " . $response->getQrCode() . "\n";
           echo "QR Code URL: " . $response->getQrCodeUrl() . "\n";
-          echo "Exchange rate: " . $response->getExchangeRate() . "\n";
-        } elseif ($request->getMode() == AliPayDirectProcessRequest::MODE_SDK) {
-          echo "Raw SDK Request: " . $response->getRawRequest() . "\n";
         } else {
           printTransaction($response->getTransactionInfo());
         }

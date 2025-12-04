@@ -3,8 +3,9 @@
 namespace PayXpert\Connect2Pay\containers\response;
 
 use PayXpert\Connect2Pay\containers\Container;
+use ReflectionClass;
 
-class AliPayDirectProcessResponse extends Container
+class UpiDirectProcessResponse extends Container
 {
     private $apiVersion;
     private $code;
@@ -23,7 +24,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->apiVersion;
     }
 
-    public function setApiVersion($apiVersion)
+    public function setApiVersion($apiVersion): UpiDirectProcessResponse
     {
         $this->apiVersion = $apiVersion;
         return $this;
@@ -34,7 +35,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->code;
     }
 
-    public function setCode($code)
+    public function setCode($code): UpiDirectProcessResponse
     {
         $this->code = $code;
         return $this;
@@ -45,7 +46,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->message;
     }
 
-    public function setMessage($message)
+    public function setMessage($message): UpiDirectProcessResponse
     {
         $this->message = $message;
         return $this;
@@ -56,7 +57,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->exchangeRate;
     }
 
-    public function setExchangeRate($exchangeRate)
+    public function setExchangeRate($exchangeRate): UpiDirectProcessResponse
     {
         $this->exchangeRate = $exchangeRate;
         return $this;
@@ -67,7 +68,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->qrCode;
     }
 
-    public function setQrCode($qrCode)
+    public function setQrCode($qrCode): UpiDirectProcessResponse
     {
         $this->qrCode = $qrCode;
         return $this;
@@ -78,7 +79,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->qrCodeUrl;
     }
 
-    public function setQrCodeUrl($qrCodeUrl)
+    public function setQrCodeUrl($qrCodeUrl): UpiDirectProcessResponse
     {
         $this->qrCodeUrl = $qrCodeUrl;
         return $this;
@@ -89,7 +90,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->webSocketUrl;
     }
 
-    public function setWebSocketUrl($webSocketUrl)
+    public function setWebSocketUrl($webSocketUrl): UpiDirectProcessResponse
     {
         $this->webSocketUrl = $webSocketUrl;
         return $this;
@@ -100,7 +101,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->transactionID;
     }
 
-    public function setTransactionID($transactionID)
+    public function setTransactionID($transactionID): UpiDirectProcessResponse
     {
         $this->transactionID = $transactionID;
         return $this;
@@ -111,7 +112,7 @@ class AliPayDirectProcessResponse extends Container
         return $this->transactionInfo;
     }
 
-    public function setTransactionInfo($transactionInfo)
+    public function setTransactionInfo($transactionInfo): UpiDirectProcessResponse
     {
         $this->transactionInfo = $transactionInfo;
         return $this;
@@ -122,20 +123,20 @@ class AliPayDirectProcessResponse extends Container
         return $this->rawRequest;
     }
 
-    public function setRawRequest($rawRequest)
+    public function setRawRequest($rawRequest): UpiDirectProcessResponse
     {
         $this->rawRequest = $rawRequest;
         return $this;
     }
 
-    public static function getFromJson($dataJson)
+    public static function getFromJson($dataJson): ?UpiDirectProcessResponse
     {
         $response = null;
 
         if ($dataJson != null && is_object($dataJson)) {
             // Root element, AccountInformation
-            $response = new AliPayDirectProcessResponse();
-            $reflector = new \ReflectionClass('PayXpert\Connect2Pay\containers\response\AliPayDirectProcessResponse');
+            $response = new UpiDirectProcessResponse();
+            $reflector = new ReflectionClass('PayXpert\Connect2Pay\containers\response\UpiDirectProcessResponse');
             self::copyScalarProperties($reflector->getProperties(), $dataJson, $response);
 
             // Transaction information

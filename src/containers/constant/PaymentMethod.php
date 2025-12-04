@@ -14,6 +14,7 @@ class PaymentMethod
     const WECHAT = 'WeChat';
     const LINE = 'Line';
     const ALIPAY = 'Alipay';
+    const UPI = 'Upi';
     const UNIONPAY = 'UnionPay';
     const BANCONTACT = 'Bancontact';
 }

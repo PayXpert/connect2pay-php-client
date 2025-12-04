@@ -241,7 +241,8 @@ class PaymentPrepareRequest extends Container
             PaymentMethod::DIRECT_DEBIT,
             PaymentMethod::WECHAT,
             PaymentMethod::LINE,
-            PaymentMethod::ALIPAY
+            PaymentMethod::ALIPAY,
+            PaymentMethod::UPI,
         ];
 
         if (in_array($paymentMethod, $validValues)) {

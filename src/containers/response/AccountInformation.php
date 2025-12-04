@@ -112,6 +112,13 @@ class AccountInformation extends Container
      */
     private $paymentMethods;
 
+    /**
+     * List of payment page themes associated with the account
+     *
+     * @var ThemeInformation[]
+     */
+    private $themes;
+
     public function getApiVersion()
     {
         return $this->apiVersion;
@@ -266,6 +273,18 @@ class AccountInformation extends Container
         return $this;
     }
 
+    public function getThemes()
+    {
+        return $this->themes;
+    }
+
+    public function setThemes($themes)
+    {
+        $this->themes = $themes;
+        return $this;
+    }
+
+
     public static function getFromJson($infoJson)
     {
         $accountInfo = null;
@@ -310,6 +329,37 @@ class AccountInformation extends Container
 
                 $accountInfo->setPaymentMethods($paymentMethods);
             }
+
+            // Themes information
+            if (isset($infoJson->themes) && is_array($infoJson->themes)) {
+                $themes = array();
+
+                foreach ($infoJson->themes as $theme) {
+                    $themeInformation = new ThemeInformation();
+                    $reflector = new \ReflectionClass('PayXpert\Connect2Pay\containers\response\ThemeInformation');
+                    self::copyScalarProperties($reflector->getProperties(), $theme, $themeInformation);
+
+                    // Seamless Information array
+                    if (isset($theme->seamlessLibraries) && is_array($theme->seamlessLibraries)) {
+                        $seamlessInformation = array();
+
+                        foreach ($theme->seamlessLibraries as $seamlessLibrary) {
+                            $seamlessLibraryInformation = new SeamlessLibraryInformation();
+                            $reflector = new \ReflectionClass('PayXpert\Connect2Pay\containers\response\SeamlessLibraryInformation');
+                            self::copyScalarProperties($reflector->getProperties(), $seamlessLibrary, $seamlessLibraryInformation);
+
+                            $seamlessInformation[] = $seamlessLibraryInformation;
+                        }
+
+                        $themeInformation->setSeamlessLibraries($seamlessInformation);
+                    }
+
+                    $themes[] = $themeInformation;
+                }
+
+                $accountInfo->setThemes($themes);
+            }
+
         }
 
         return $accountInfo;

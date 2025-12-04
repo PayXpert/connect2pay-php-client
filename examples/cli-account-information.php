@@ -45,6 +45,24 @@ if ($info != null) {
       }
     }
   }
+
+  if ($info->getThemes() !== null) {
+    echo "Available payment page themes for this account:\n";
+
+    foreach ($info->getThemes() as $theme) {
+      echo "~~ Theme: " . $theme->getName() . " / Theme Id: " . $theme->getThemeId();
+      echo "\n";
+
+      if ($theme->getSeamlessLibraries() !== null) {
+        echo "** Available Seamless Libraries:\n";
+
+        foreach ($theme->getSeamlessLibraries() as $seamlessLibrary) {
+          echo "*** " . $seamlessLibrary->getVersion() . " (SHA384 Hash: " . $seamlessLibrary->getHash() . ")\n";
+        }
+      }
+    }
+  }
+
 } else {
   echo "Error: " . $c2pClient->getClientErrorMessage() . "\n";
 }

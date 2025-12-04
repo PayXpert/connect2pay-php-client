@@ -66,6 +66,7 @@ $shopperEmailAddress = "shopper@example.com";
 // Affiliation fields
 //$affiliateID = 1234567;
 //$campaignName = "Test Campaign";
+//$merchantIdentifier = "5c85c27f-2c0f-42c2-b3ba-ce915d321d1d";
 
 // WeChat direct specific fields
 //$weChatDirectMode = WeChatDirectProcessRequest::MODE_QUICKPAY;

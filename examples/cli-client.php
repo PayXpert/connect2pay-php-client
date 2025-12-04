@@ -51,7 +51,7 @@ if (isset($subscriptionOfferId)) {
 }
 
 // Transaction data
-$order->setId(date("Y-m-d-H.i.s"));
+$order->setId(uniqid());
 
 if (isset($paymentMethod)) {
   $prepareRequest->setPaymentMethod($paymentMethod);
@@ -74,7 +74,6 @@ $shopper->setLastName("Doe");
 $shopper->setAddress1("Debit Street, 45");
 $shopper->setZipcode("3456TRG");
 $shopper->setCity("New York");
-$shopper->setState("ABC");
 $shopper->setCountryCode("US");
 $shopper->setHomePhonePrefix("34");
 $shopper->setHomePhone("666666666");
@@ -103,7 +102,6 @@ if (isset($redirectURL)) {
 $shipping->setName("Lady Gogo");
 $shipping->setAddress1("125 Main Street");
 $shipping->setZipcode("ABC-5678");
-$shipping->setState("ABC");
 $shipping->setCity("New York");
 $shipping->setCountryCode("US");
 $shipping->setPhone("+47123456789");
@@ -140,6 +138,9 @@ if (isset($affiliateID)) {
 if (isset($campaignName)) {
   $order->setCampaignName($campaignName);
 }
+if (isset($merchantIdentifier)) {
+    $order->setMerchantIdentifier($merchantIdentifier);
+}
 
 if (isset($timeOut)) {
   $prepareRequest->setTimeOut($timeOut);
@@ -153,10 +154,14 @@ $result = $c2pClient->preparePayment($prepareRequest);
 if ($result !== false) {
   echo "Result code:" . $result->getCode() . "\n";
   echo "Result message:" . $result->getMessage() . "\n";
-  echo "Get merchant status by running: php cli-payment-status.php " . $result->getMerchantToken() . "\n";
-  echo "Customer access is at: " . $c2pClient->getCustomerRedirectURL($result) . "\n";
-  echo "To test the decryption of status posted when the customer is redirected, use the following command:\n";
-  echo "php cli-encrypted-status.php " . $result->getMerchantToken() . ' ${data_field_from_the_form}' . "\n";
+  if ($result->getCode() === '200') {
+    echo "Get merchant status by running: php cli-payment-status.php " . $result->getMerchantToken() . "\n";
+    echo "Customer access is at: " . $c2pClient->getCustomerRedirectURL($result) . "\n";
+    echo "To test the decryption of status posted when the customer is redirected, use the following command:\n";
+    echo "php cli-encrypted-status.php " . $result->getMerchantToken() . ' ${data_field_from_the_form}' . "\n";
+  } else {
+    var_dump($result);
+  }
 } else {
   echo "Preparation error occurred: " . $c2pClient->getClientErrorMessage() . "\n";
 }

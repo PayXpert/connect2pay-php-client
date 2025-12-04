@@ -48,6 +48,8 @@ class Order extends Container
 
     private $campaignName;
 
+    private $merchantIdentifier;
+
     /**
      * @var Recurrence
      */
@@ -476,6 +478,24 @@ class Order extends Container
     }
 
     /**
+     * @return mixed
+     */
+    public function getMerchantIdentifier()
+    {
+        return $this->merchantIdentifier;
+    }
+
+    /**
+     * @param mixed $merchantIdentifier
+     * @return Order
+     */
+    public function setMerchantIdentifier($merchantIdentifier)
+    {
+        $this->merchantIdentifier = $this->limitLength($merchantIdentifier, 128);
+        return $this;
+    }
+
+    /**
      * @return Recurrence
      */
     public function getRecurrence()
@@ -496,7 +516,7 @@ class Order extends Container
     public function addCartProduct($product)
     {
         if ($this->cartContent == null) {
-            $this->cartContent == [];
+            $this->cartContent = [];
         }
         $this->cartContent[] = $product;
     }

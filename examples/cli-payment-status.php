@@ -15,7 +15,7 @@ $merchantToken = $argv[1];
 $c2pClient = new Connect2PayClient($connect2pay, $originator, $password);
 $status = $c2pClient->getPaymentStatus($merchantToken);
 
-if ($status != null && $status->getErrorCode() != null) {
+if ($status != null) {
   echo "Merchant token: " . $status->getMerchantToken() . "\n";
   echo "Status: " . $status->getStatus() . "\n";
   echo "Error code: " . $status->getErrorCode() . "\n";

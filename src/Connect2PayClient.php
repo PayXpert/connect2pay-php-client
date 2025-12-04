@@ -4,6 +4,7 @@ namespace PayXpert\Connect2Pay;
 
 use PayXpert\Connect2Pay\containers\request\PaymentPrepareRequest;
 use PayXpert\Connect2Pay\containers\response\PaymentPrepareResponse;
+use PayXpert\Connect2Pay\containers\response\UpiDirectProcessResponse;
 use PayXpert\Connect2Pay\helpers\Utils;
 use PayXpert\Connect2Pay\containers\response\AccountInformation;
 use PayXpert\Connect2Pay\containers\response\TransactionAttempt;
@@ -79,12 +80,12 @@ class Connect2PayClient
     /**
      * Client version
      */
-    const CLIENT_VERSION = "2.71.0";
+    const CLIENT_VERSION = "2.73.0";
 
     /**
      * API version implemented by this class
      */
-    const API_VERSION = "002.71";
+    const API_VERSION = "002.73";
 
     /**
      * API calls routes
@@ -102,7 +103,8 @@ class Connect2PayClient
         'TRANS_DOPAY' => '/payment/:customerToken', /* */
         'SUB_CANCEL' => '/subscription/:subscriptionID/cancel', /* */
         'WECHAT_DIRECT_PROCESS' => '/payment/:customerToken/process/wechat/direct', /* */
-        'ALIPAY_DIRECT_PROCESS' => '/payment/:customerToken/process/alipay/direct' /* */
+        'ALIPAY_DIRECT_PROCESS' => '/payment/:customerToken/process/alipay/direct', /* */
+        'UPI_DIRECT_PROCESS' => '/payment/:customerToken/process/upi/direct', /* */
     );
 
     /*
@@ -412,16 +414,24 @@ class Connect2PayClient
      *          Identifier of the transaction to rebill
      * @param int $amount
      *          The amount to rebill
+     * @param string $orderId The order Id for the transaction (optional, if different from the initial transaction)
+     * @param string $merchantIdentifier The merchant identifier for the transaction (optional, if different from the initial transaction)
      * @return RebillStatus The RebillStatus filled with values returned from the
      *         operation or null on failure (in that case call getClientErrorMessage())
      */
-    public function rebillTransaction($transactionID, $amount)
+    public function rebillTransaction($transactionID, $amount, $orderId = null, $merchantIdentifier = null)
     {
         if ($transactionID !== null && $amount !== null && (is_int($amount) || ctype_digit($amount))) {
             $url = $this->url . str_replace(":transactionID", $transactionID, Connect2PayClient::$API_ROUTES['TRANS_REBILL']);
             $trans = array();
             $trans['apiVersion'] = $this->getApiVersion();
             $trans['amount'] = intval($amount);
+            if ($orderId !== null) {
+                $trans['orderId'] = $orderId;
+            }
+            if ($merchantIdentifier !== null) {
+                $trans['merchantIdentifier'] = $merchantIdentifier;
+            }
 
             return $this->doOperation($url, $trans, new RebillStatus());
         } else {
@@ -609,6 +619,42 @@ class Connect2PayClient
                 return $apiResponse;
             } else {
                 $this->clientErrorMessage = 'No result received from direct AliPay processing call: ' . $this->clientErrorMessage;
+            }
+        } else {
+            $this->clientErrorMessage = '"customerToken" and "request" must not be null';
+        }
+
+        return null;
+    }
+
+    /**
+     * Direct UPI transaction process.
+     * Must be preceded by a payment prepare call.
+     *
+     * @param string $customerToken
+     *          Customer token of the payment returned by the previous prepare
+     *          call
+     * @param UpiDirectProcessRequest $request
+     *          The UpiDirectProcessRequest object with call parameters
+     * @return UpiDirectProcessResponse|null The UpiDirectProcessResponse filled
+     *         with values returned from the operation or null on failure (in that case call
+     *         getClientErrorMessage())
+     */
+    public function directUpiProcess($customerToken, $request)
+    {
+        if ($customerToken !== null && $request !== null) {
+            $url = $this->url . str_replace(":customerToken", $customerToken, Connect2PayClient::$API_ROUTES['UPI_DIRECT_PROCESS']);
+
+            $request->setApiVersion($this->getApiVersion());
+
+            $result = $this->doPost($url, json_encode($request), false);
+
+            if ($result != null && is_object($result)) {
+                $apiResponse = UpiDirectProcessResponse::getFromJson($result);
+
+                return $apiResponse;
+            } else {
+                $this->clientErrorMessage = 'No result received from direct UPI processing call: ' . $this->clientErrorMessage;
             }
         } else {
             $this->clientErrorMessage = '"customerToken" and "request" must not be null';

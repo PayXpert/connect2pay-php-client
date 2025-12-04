@@ -11,12 +11,15 @@ class AliPayDirectProcessRequest extends Container
     const MODE_SDK = "sdk";
     const IDENTITY_CODE_TYPE_BARCODE = "barcode";
     const IDENTITY_CODE_TYPE_QRCODE = "qrcode";
+    const OS_TYPE_ANDROID = "android";
+    const OS_TYPE_IOS = "ios";
 
     /* ~~ */
     private $apiVersion;
     private $mode;
     private $buyerIdentityCode;
     private $identityCodeType;
+    private $sdkOsType;
     private $notificationLang;
     private $notificationTimeZone;
 
@@ -44,7 +47,7 @@ class AliPayDirectProcessRequest extends Container
 
     public function setMode($mode)
     {
-        $this->mode = in_array($mode, array(self::MODE_POS, self::MODE_APP, self::MODE_SDK)) ? $mode : self::MODE_NATIVE;
+        $this->mode = in_array($mode, array(self::MODE_POS, self::MODE_APP, self::MODE_SDK)) ? $mode : self::MODE_POS;
         return $this;
     }
 
@@ -73,6 +76,24 @@ class AliPayDirectProcessRequest extends Container
     public function setIdentityCodeType($identityCodeType)
     {
         $this->identityCodeType = $identityCodeType;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSdkOsType()
+    {
+        return $this->sdkOsType;
+    }
+
+    /**
+     * @param mixed $sdkOsType
+     * @return AliPayDirectProcessRequest
+     */
+    public function setSdkOsType($sdkOsType)
+    {
+        $this->sdkOsType = in_array($sdkOsType, array(self::OS_TYPE_ANDROID, self::OS_TYPE_IOS)) ? $sdkOsType : null;
         return $this;
     }
 
